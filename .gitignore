@@ -1,0 +1,74 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# iOS
+apps/ios-*/Pods/
+apps/ios-*/*.xcworkspace
+apps/ios-*/DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+
+# Android
+apps/android-*/.gradle/
+apps/android-*/build/
+apps/android-*/local.properties
+apps/android-*/captures/
+apps/android-*/.externalNativeBuild/
+apps/android-*/.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Database
+*.sqlite
+*.db
+
+# Docker
+docker-compose.override.yml
