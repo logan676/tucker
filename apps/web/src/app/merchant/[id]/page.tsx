@@ -82,8 +82,21 @@ export default function MerchantPage() {
             : item
         )
       }
-      return [...prev, { product, quantity: 1 }]
+      return [...prev, { product: { ...product, merchantId: merchant?.id || '' }, quantity: 1 }]
     })
+  }
+
+  const handleCheckout = () => {
+    if (cart.length === 0 || !merchant) return
+    // Save cart to localStorage for checkout page
+    localStorage.setItem('cart', JSON.stringify(cart))
+    localStorage.setItem('cartMerchant', JSON.stringify({
+      id: merchant.id,
+      name: merchant.name,
+      deliveryFee: merchant.deliveryFee,
+      minOrderAmount: merchant.minOrderAmount,
+    }))
+    router.push('/checkout')
   }
 
   const removeFromCart = (productId: string) => {
@@ -271,7 +284,10 @@ export default function MerchantPage() {
             </div>
             <span className="text-xl font-bold">¥{totalPrice.toFixed(2)}</span>
           </div>
-          <button className="bg-primary-500 px-6 py-2 rounded-full font-medium">
+          <button
+            onClick={handleCheckout}
+            className="bg-primary-500 px-6 py-2 rounded-full font-medium"
+          >
             Checkout
           </button>
         </div>
