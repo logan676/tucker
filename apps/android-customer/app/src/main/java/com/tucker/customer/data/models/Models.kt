@@ -72,12 +72,28 @@ data class AuthResponse(
 @Serializable
 data class Order(
     val id: String,
+    val orderNo: String,
     val status: String,
     val totalAmount: Double,
+    val deliveryFee: Double = 0.0,
+    val discountAmount: Double = 0.0,
+    val payAmount: Double,
     val merchantId: String,
     val merchantName: String? = null,
     val items: List<OrderItem>? = null,
-    val createdAt: String
+    val deliveryAddress: DeliveryAddress? = null,
+    val createdAt: String,
+    val paidAt: String? = null
+)
+
+@Serializable
+data class DeliveryAddress(
+    val name: String,
+    val phone: String,
+    val province: String,
+    val city: String,
+    val district: String,
+    val detail: String
 )
 
 @Serializable
@@ -86,7 +102,48 @@ data class OrderItem(
     val productId: String,
     val productName: String,
     val price: Double,
-    val quantity: Int
+    val quantity: Int,
+    val image: String? = null
+)
+
+@Serializable
+data class Address(
+    val id: String,
+    val label: String? = null,
+    val name: String,
+    val phone: String,
+    val province: String,
+    val city: String,
+    val district: String,
+    val detail: String,
+    val isDefault: Boolean = false
+)
+
+@Serializable
+data class CreateOrderResponse(
+    val orderId: String,
+    val orderNo: String,
+    val totalAmount: Double,
+    val deliveryFee: Double,
+    val discountAmount: Double,
+    val payAmount: Double,
+    val payExpireAt: String
+)
+
+@Serializable
+data class PaymentResponse(
+    val paymentId: String,
+    val orderId: String,
+    val amount: Double,
+    val method: String,
+    val paymentUrl: String,
+    val expireAt: String
+)
+
+@Serializable
+data class MockPaymentResult(
+    val message: String,
+    val status: String
 )
 
 @Serializable

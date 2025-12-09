@@ -37,9 +37,23 @@ interface ApiService {
     @GET("orders/{id}")
     suspend fun getOrder(@Path("id") id: String): Order
 
+    @POST("orders")
+    suspend fun createOrder(@Body request: com.tucker.customer.data.repository.OrderRepository.CreateOrderRequest): CreateOrderResponse
+
     // User
     @GET("users/me")
     suspend fun getUserProfile(): User
+
+    // Addresses
+    @GET("users/me/addresses")
+    suspend fun getAddresses(): List<Address>
+
+    // Payments
+    @POST("payments")
+    suspend fun createPayment(@Body request: com.tucker.customer.data.repository.OrderRepository.CreatePaymentRequest): PaymentResponse
+
+    @GET("payments/{id}/mock-pay")
+    suspend fun mockPayment(@Path("id") paymentId: String, @Query("success") success: String = "true"): MockPaymentResult
 }
 
 @kotlinx.serialization.Serializable
