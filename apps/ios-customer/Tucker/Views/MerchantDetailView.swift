@@ -225,6 +225,7 @@ struct ProductRow: View {
 
 struct CartBar: View {
     @EnvironmentObject var cartManager: CartManager
+    @State private var showCheckout = false
 
     var body: some View {
         HStack {
@@ -250,7 +251,7 @@ struct CartBar: View {
             Spacer()
 
             Button("Checkout") {
-                // Navigate to checkout
+                showCheckout = true
             }
             .fontWeight(.medium)
             .foregroundColor(.white)
@@ -261,6 +262,9 @@ struct CartBar: View {
         }
         .padding()
         .background(Color(.darkGray))
+        .sheet(isPresented: $showCheckout) {
+            CheckoutView()
+        }
     }
 }
 

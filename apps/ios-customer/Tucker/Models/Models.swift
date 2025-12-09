@@ -51,10 +51,46 @@ struct Order: Codable, Identifiable {
     let id: String
     let orderNo: String
     let merchantId: String
+    let merchantName: String?
     let totalAmount: Double
+    let deliveryFee: Double
+    let discountAmount: Double
     let payAmount: Double
     let status: String
+    let deliveryAddress: DeliveryAddress?
+    let items: [OrderItem]?
     let createdAt: String
+    let paidAt: String?
+}
+
+struct DeliveryAddress: Codable {
+    let name: String
+    let phone: String
+    let province: String
+    let city: String
+    let district: String
+    let detail: String
+}
+
+struct OrderItem: Codable, Identifiable {
+    let id: String
+    let productId: String
+    let productName: String
+    let price: Double
+    let quantity: Int
+    let image: String?
+}
+
+struct Address: Codable, Identifiable {
+    let id: String
+    let label: String?
+    let name: String
+    let phone: String
+    let province: String
+    let city: String
+    let district: String
+    let detail: String
+    let isDefault: Bool
 }
 
 struct User: Codable, Identifiable {
