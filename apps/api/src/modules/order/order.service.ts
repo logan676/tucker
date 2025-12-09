@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order, OrderStatus } from './entities/order.entity';
@@ -6,6 +6,7 @@ import { OrderItem } from './entities/order-item.entity';
 import { Address } from '../user/entities/address.entity';
 import { Product } from '../product/entities/product.entity';
 import { Merchant, MerchantStatus } from '../merchant/entities/merchant.entity';
+import { CouponService } from '../coupon/coupon.service';
 import { CreateOrderDto, CreateOrderResponseDto } from './dto/create-order.dto';
 import { QueryOrdersDto } from './dto/query-orders.dto';
 import { CancelOrderDto } from './dto/cancel-order.dto';
@@ -26,6 +27,8 @@ export class OrderService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Merchant)
     private readonly merchantRepository: Repository<Merchant>,
+    @Inject(forwardRef(() => CouponService))
+    private readonly couponService: CouponService,
   ) {}
 
   async create(userId: string, dto: CreateOrderDto): Promise<CreateOrderResponseDto> {
@@ -125,7 +128,21 @@ export class OrderService {
     }
 
     const deliveryFee = Number(merchant.deliveryFee);
-    const discountAmount = 0; // TODO: Apply coupon
+
+    // Apply coupon if provided
+    let discountAmount = 0;
+    if (dto.couponCode) {
+      const validation = await this.couponService.validateCoupon(userId, {
+        code: dto.couponCode,
+        merchantId: dto.merchantId,
+        orderAmount: totalAmount,
+      });
+
+      if (validation.valid) {
+        discountAmount = validation.discountAmount;
+      }
+    }
+
     const payAmount = totalAmount + deliveryFee - discountAmount;
 
     // Generate order number

@@ -53,10 +53,10 @@ export class CreateOrderDto {
   @IsString()
   remark?: string;
 
-  @ApiPropertyOptional({ description: 'Coupon ID' })
+  @ApiPropertyOptional({ description: 'Coupon code' })
   @IsOptional()
-  @IsUUID()
-  couponId?: string;
+  @IsString()
+  couponCode?: string;
 }
 
 export class CreateOrderResponseDto {
