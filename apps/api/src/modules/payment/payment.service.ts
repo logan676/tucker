@@ -2,35 +2,28 @@ import { Injectable, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order, OrderStatus } from '../order/entities/order.entity';
+import { Payment, PaymentStatus, PaymentMethod } from './entities/payment.entity';
+import { StripeService } from './stripe.service';
+import { RedisService } from '@/modules/redis/redis.service';
 import {
   CreatePaymentDto,
   PaymentResponseDto,
   PaymentStatusDto,
-  PaymentMethod,
 } from './dto/create-payment.dto';
 import { BusinessException } from '@/common/exceptions/business.exception';
 import { ErrorCodes } from '@/common/constants/error-codes';
 
-interface PaymentRecord {
-  id: string;
-  orderId: string;
-  userId: string;
-  amount: number;
-  method: PaymentMethod;
-  status: 'pending' | 'success' | 'failed' | 'expired';
-  createdAt: Date;
-  expireAt: Date;
-  paidAt?: Date;
-}
-
 @Injectable()
 export class PaymentService {
-  // In-memory storage for mock payments (use Redis/DB in production)
-  private payments = new Map<string, PaymentRecord>();
+  private readonly PAYMENT_CACHE_PREFIX = 'payment:';
 
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
+    private readonly stripeService: StripeService,
+    private readonly redisService: RedisService,
   ) {}
 
   async createPayment(
@@ -59,44 +52,75 @@ export class PaymentService {
     }
 
     // Check if payment already exists for this order
-    const existingPayment = Array.from(this.payments.values()).find(
-      (p) => p.orderId === dto.orderId && p.status === 'pending',
-    );
+    const existingPayment = await this.paymentRepository.findOne({
+      where: {
+        orderId: dto.orderId,
+        status: PaymentStatus.PENDING,
+      },
+    });
 
     if (existingPayment && existingPayment.expireAt > new Date()) {
       return {
         paymentId: existingPayment.id,
         orderId: existingPayment.orderId,
-        amount: existingPayment.amount,
-        method: existingPayment.method,
-        paymentUrl: this.generatePaymentUrl(existingPayment.id, existingPayment.method),
+        amount: Number(existingPayment.amount),
+        method: dto.method as any,
+        paymentUrl: this.generatePaymentUrl(existingPayment),
         expireAt: existingPayment.expireAt,
       };
     }
 
-    // Create new payment record
-    const paymentId = this.generatePaymentId();
     const expireAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const amount = Number(order.payAmount);
 
-    const payment: PaymentRecord = {
-      id: paymentId,
+    // Create payment record
+    const payment = this.paymentRepository.create({
       orderId: order.id,
       userId,
-      amount: Number(order.payAmount),
-      method: dto.method,
-      status: 'pending',
-      createdAt: new Date(),
+      amount,
+      method: dto.method as PaymentMethod,
+      status: PaymentStatus.PENDING,
       expireAt,
-    };
+    });
 
-    this.payments.set(paymentId, payment);
+    // If Stripe is configured, create a PaymentIntent
+    if (this.stripeService.isConfigured() && dto.method === 'card') {
+      try {
+        const paymentIntent = await this.stripeService.createPaymentIntent({
+          amount: Math.round(amount * 100), // Convert to cents
+          orderId: order.id,
+          userId,
+          currency: 'cny',
+        });
+
+        payment.stripePaymentIntentId = paymentIntent.paymentIntentId;
+        payment.stripeClientSecret = paymentIntent.clientSecret;
+      } catch (error) {
+        console.error('Failed to create Stripe PaymentIntent:', error);
+        // Fall back to mock payment
+      }
+    }
+
+    await this.paymentRepository.save(payment);
+
+    // Cache payment for quick lookup
+    await this.redisService.setJson(
+      `${this.PAYMENT_CACHE_PREFIX}${payment.id}`,
+      {
+        id: payment.id,
+        orderId: payment.orderId,
+        userId: payment.userId,
+        status: payment.status,
+      },
+      900, // 15 minutes
+    );
 
     return {
-      paymentId,
+      paymentId: payment.id,
       orderId: order.id,
-      amount: payment.amount,
-      method: dto.method,
-      paymentUrl: this.generatePaymentUrl(paymentId, dto.method),
+      amount,
+      method: dto.method as any,
+      paymentUrl: this.generatePaymentUrl(payment),
       expireAt,
     };
   }
@@ -105,31 +129,9 @@ export class PaymentService {
     userId: string,
     paymentId: string,
   ): Promise<PaymentStatusDto> {
-    const payment = this.payments.get(paymentId);
-
-    if (!payment || payment.userId !== userId) {
-      throw new BusinessException(
-        ErrorCodes.ORDER_NOT_FOUND,
-        'Payment not found',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    // Check if expired
-    if (payment.status === 'pending' && payment.expireAt < new Date()) {
-      payment.status = 'expired';
-    }
-
-    return {
-      paymentId: payment.id,
-      orderId: payment.orderId,
-      status: payment.status,
-      paidAt: payment.paidAt,
-    };
-  }
-
-  async confirmPayment(paymentId: string): Promise<PaymentStatusDto> {
-    const payment = this.payments.get(paymentId);
+    const payment = await this.paymentRepository.findOne({
+      where: { id: paymentId, userId },
+    });
 
     if (!payment) {
       throw new BusinessException(
@@ -139,7 +141,53 @@ export class PaymentService {
       );
     }
 
-    if (payment.status !== 'pending') {
+    // Check if expired
+    if (payment.status === PaymentStatus.PENDING && payment.expireAt < new Date()) {
+      payment.status = PaymentStatus.EXPIRED;
+      await this.paymentRepository.save(payment);
+    }
+
+    // If Stripe payment, check latest status
+    if (payment.stripePaymentIntentId && payment.status === PaymentStatus.PENDING) {
+      try {
+        const paymentIntent = await this.stripeService.retrievePaymentIntent(
+          payment.stripePaymentIntentId,
+        );
+
+        if (paymentIntent.status === 'succeeded') {
+          await this.confirmPayment(paymentId);
+          payment.status = PaymentStatus.SUCCESS;
+        } else if (paymentIntent.status === 'canceled') {
+          payment.status = PaymentStatus.FAILED;
+          await this.paymentRepository.save(payment);
+        }
+      } catch (error) {
+        console.error('Failed to retrieve Stripe PaymentIntent:', error);
+      }
+    }
+
+    return {
+      paymentId: payment.id,
+      orderId: payment.orderId,
+      status: payment.status as any,
+      paidAt: payment.paidAt,
+    };
+  }
+
+  async confirmPayment(paymentId: string): Promise<PaymentStatusDto> {
+    const payment = await this.paymentRepository.findOne({
+      where: { id: paymentId },
+    });
+
+    if (!payment) {
+      throw new BusinessException(
+        ErrorCodes.ORDER_NOT_FOUND,
+        'Payment not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (payment.status !== PaymentStatus.PENDING) {
       throw new BusinessException(
         ErrorCodes.INVALID_ORDER_STATUS,
         'Payment is not pending',
@@ -148,7 +196,8 @@ export class PaymentService {
     }
 
     if (payment.expireAt < new Date()) {
-      payment.status = 'expired';
+      payment.status = PaymentStatus.EXPIRED;
+      await this.paymentRepository.save(payment);
       throw new BusinessException(
         ErrorCodes.INVALID_ORDER_STATUS,
         'Payment has expired',
@@ -157,8 +206,9 @@ export class PaymentService {
     }
 
     // Update payment status
-    payment.status = 'success';
+    payment.status = PaymentStatus.SUCCESS;
     payment.paidAt = new Date();
+    await this.paymentRepository.save(payment);
 
     // Update order status
     await this.orderRepository.update(payment.orderId, {
@@ -166,17 +216,53 @@ export class PaymentService {
       paidAt: payment.paidAt,
     });
 
+    // Clear cache
+    await this.redisService.del(`${this.PAYMENT_CACHE_PREFIX}${paymentId}`);
+
     return {
       paymentId: payment.id,
       orderId: payment.orderId,
-      status: payment.status,
+      status: payment.status as any,
       paidAt: payment.paidAt,
     };
   }
 
+  // Handle Stripe webhook
+  async handleStripeWebhook(event: any): Promise<void> {
+    switch (event.type) {
+      case 'payment_intent.succeeded': {
+        const paymentIntent = event.data.object;
+        const payment = await this.paymentRepository.findOne({
+          where: { stripePaymentIntentId: paymentIntent.id },
+        });
+
+        if (payment && payment.status === PaymentStatus.PENDING) {
+          await this.confirmPayment(payment.id);
+        }
+        break;
+      }
+
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object;
+        const payment = await this.paymentRepository.findOne({
+          where: { stripePaymentIntentId: paymentIntent.id },
+        });
+
+        if (payment && payment.status === PaymentStatus.PENDING) {
+          payment.status = PaymentStatus.FAILED;
+          payment.failureReason = paymentIntent.last_payment_error?.message || 'Payment failed';
+          await this.paymentRepository.save(payment);
+        }
+        break;
+      }
+    }
+  }
+
   // Mock: Simulate payment callback from payment provider
   async mockPaymentCallback(paymentId: string, success: boolean): Promise<void> {
-    const payment = this.payments.get(paymentId);
+    const payment = await this.paymentRepository.findOne({
+      where: { id: paymentId },
+    });
 
     if (!payment) {
       throw new BusinessException(
@@ -189,17 +275,19 @@ export class PaymentService {
     if (success) {
       await this.confirmPayment(paymentId);
     } else {
-      payment.status = 'failed';
+      payment.status = PaymentStatus.FAILED;
+      await this.paymentRepository.save(payment);
     }
   }
 
-  private generatePaymentId(): string {
-    return `PAY${Date.now()}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-  }
+  private generatePaymentUrl(payment: Payment): string {
+    // If Stripe client secret is available, return it for frontend Stripe.js
+    if (payment.stripeClientSecret) {
+      return payment.stripeClientSecret;
+    }
 
-  private generatePaymentUrl(paymentId: string, method: PaymentMethod): string {
-    // Mock payment URL - in production this would be a real payment gateway URL
+    // Mock payment URL for testing
     const baseUrl = process.env.APP_URL || 'http://localhost:3000';
-    return `${baseUrl}/api/v1/payments/${paymentId}/mock-pay?method=${method}`;
+    return `${baseUrl}/api/v1/payments/${payment.id}/mock-pay?method=${payment.method}`;
   }
 }

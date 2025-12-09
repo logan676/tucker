@@ -6,9 +6,14 @@ import {
   Param,
   Query,
   UseGuards,
+  Req,
+  RawBodyRequest,
+  Headers,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Request } from 'express';
 import { PaymentService } from './payment.service';
+import { StripeService } from './stripe.service';
 import {
   CreatePaymentDto,
   PaymentResponseDto,
@@ -22,7 +27,10 @@ import { Public } from '@/common/decorators/public.decorator';
 @ApiTags('Payments')
 @Controller('payments')
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(
+    private readonly paymentService: PaymentService,
+    private readonly stripeService: StripeService,
+  ) {}
 
   @Post()
   @ApiBearerAuth()
@@ -65,7 +73,7 @@ export class PaymentController {
     };
   }
 
-  // Webhook endpoint for payment provider callbacks
+  // Legacy callback endpoint for payment provider callbacks
   @Post('callback')
   @Public()
   @ApiOperation({ summary: 'Payment callback webhook' })
@@ -73,5 +81,28 @@ export class PaymentController {
   async paymentCallback(@Body() dto: PaymentCallbackDto): Promise<{ received: boolean }> {
     await this.paymentService.mockPaymentCallback(dto.paymentId, dto.success);
     return { received: true };
+  }
+
+  // Stripe webhook endpoint
+  @Post('stripe/webhook')
+  @Public()
+  @ApiOperation({ summary: 'Stripe webhook endpoint' })
+  @ApiResponse({ status: 200 })
+  async stripeWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('stripe-signature') signature: string,
+  ): Promise<{ received: boolean }> {
+    if (!req.rawBody) {
+      return { received: false };
+    }
+
+    try {
+      const event = this.stripeService.constructWebhookEvent(req.rawBody, signature);
+      await this.paymentService.handleStripeWebhook(event);
+      return { received: true };
+    } catch (error) {
+      console.error('Stripe webhook error:', error);
+      return { received: false };
+    }
   }
 }
