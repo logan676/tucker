@@ -107,3 +107,32 @@ export interface ApiResponse<T> {
   message: string
   data: T
 }
+
+export interface Coupon {
+  id: string
+  code: string
+  name: string
+  description: string | null
+  discountType: 'percentage' | 'fixed'
+  discountValue: number
+  minOrderAmount: number | null
+  maxDiscountAmount: number | null
+  startDate: string
+  endDate: string
+  usageLimit: number | null
+  usageCount: number
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface UserCoupon {
+  id: string
+  userId: string
+  couponId: string
+  usedAt: string | null
+  orderId: string | null
+  createdAt: string
+  coupon?: Coupon
+  user?: User
+}

@@ -9,6 +9,9 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  ShoppingOutlined,
+  GiftOutlined,
+  SettingOutlined,
 } from '@ant-design/icons'
 import { useAuthStore } from '@/stores/auth'
 
@@ -31,9 +34,24 @@ const menuItems = [
     label: 'Orders',
   },
   {
+    key: '/products',
+    icon: <ShoppingOutlined />,
+    label: 'Products',
+  },
+  {
     key: '/users',
     icon: <UserOutlined />,
     label: 'Users',
+  },
+  {
+    key: '/marketing',
+    icon: <GiftOutlined />,
+    label: 'Marketing',
+  },
+  {
+    key: '/settings',
+    icon: <SettingOutlined />,
+    label: 'Settings',
   },
 ]
 
