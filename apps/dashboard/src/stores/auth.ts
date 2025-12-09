@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware'
 interface AdminUser {
   id: string
   username: string
+  phone?: string
   role: 'admin' | 'operator'
 }
 

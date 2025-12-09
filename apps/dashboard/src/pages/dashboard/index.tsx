@@ -1,18 +1,27 @@
-import { Row, Col, Card, Statistic } from 'antd'
+import { Row, Col, Card, Statistic, Spin } from 'antd'
 import {
   ShopOutlined,
   OrderedListOutlined,
   UserOutlined,
   DollarOutlined,
+  ClockCircleOutlined,
+  SyncOutlined,
 } from '@ant-design/icons'
+import { useQuery } from '@tanstack/react-query'
+import { adminApi } from '@/services/admin'
 
 export default function DashboardPage() {
-  // In production, fetch real stats from API
-  const stats = {
-    merchants: 156,
-    orders: 1234,
-    users: 5678,
-    revenue: 123456.78,
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: adminApi.getDashboardStats,
+  })
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: 100 }}>
+        <Spin size="large" />
+      </div>
+    )
   }
 
   return (
@@ -23,7 +32,7 @@ export default function DashboardPage() {
           <Card>
             <Statistic
               title="Total Merchants"
-              value={stats.merchants}
+              value={stats?.totalMerchants || 0}
               prefix={<ShopOutlined />}
               valueStyle={{ color: '#1890ff' }}
             />
@@ -33,7 +42,7 @@ export default function DashboardPage() {
           <Card>
             <Statistic
               title="Total Orders"
-              value={stats.orders}
+              value={stats?.totalOrders || 0}
               prefix={<OrderedListOutlined />}
               valueStyle={{ color: '#52c41a' }}
             />
@@ -43,7 +52,7 @@ export default function DashboardPage() {
           <Card>
             <Statistic
               title="Total Users"
-              value={stats.users}
+              value={stats?.totalUsers || 0}
               prefix={<UserOutlined />}
               valueStyle={{ color: '#722ed1' }}
             />
@@ -53,10 +62,54 @@ export default function DashboardPage() {
           <Card>
             <Statistic
               title="Total Revenue"
-              value={stats.revenue}
+              value={stats?.totalRevenue || 0}
               prefix={<DollarOutlined />}
               precision={2}
               valueStyle={{ color: '#faad14' }}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={16} style={{ marginTop: 24 }}>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Today's Orders"
+              value={stats?.todayOrders || 0}
+              prefix={<ClockCircleOutlined />}
+              valueStyle={{ color: '#13c2c2' }}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Today's Revenue"
+              value={stats?.todayRevenue || 0}
+              prefix={<DollarOutlined />}
+              precision={2}
+              valueStyle={{ color: '#eb2f96' }}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Pending Merchants"
+              value={stats?.pendingMerchants || 0}
+              prefix={<ShopOutlined />}
+              valueStyle={{ color: '#fa8c16' }}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Active Orders"
+              value={stats?.activeOrders || 0}
+              prefix={<SyncOutlined spin={stats?.activeOrders ? stats.activeOrders > 0 : false} />}
+              valueStyle={{ color: '#2f54eb' }}
             />
           </Card>
         </Col>
