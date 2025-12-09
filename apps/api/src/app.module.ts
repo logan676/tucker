@@ -8,16 +8,23 @@ import { ProductModule } from './modules/product/product.module';
 import { OrderModule } from './modules/order/order.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { RedisModule } from './modules/redis/redis.module';
+import { SmsModule } from './modules/sms/sms.module';
+import { CouponModule } from './modules/coupon/coupon.module';
+import { MerchantOwnerModule } from './modules/merchant-owner/merchant-owner.module';
+import { NotificationModule } from './modules/notification/notification.module';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from './config/app.config';
+import redisConfig from './config/redis.config';
+import smsConfig from './config/sms.config';
 
 @Module({
   imports: [
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, jwtConfig, appConfig],
+      load: [databaseConfig, jwtConfig, appConfig, redisConfig, smsConfig],
       envFilePath: ['.env.local', '.env'],
     }),
 
@@ -38,6 +45,10 @@ import appConfig from './config/app.config';
       }),
     }),
 
+    // Core modules
+    RedisModule,
+    SmsModule,
+
     // Feature modules
     AuthModule,
     UserModule,
@@ -46,6 +57,9 @@ import appConfig from './config/app.config';
     OrderModule,
     PaymentModule,
     AdminModule,
+    CouponModule,
+    MerchantOwnerModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}

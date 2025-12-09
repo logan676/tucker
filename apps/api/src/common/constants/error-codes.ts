@@ -1,10 +1,17 @@
 export const ErrorCodes = {
+  // Auth errors (1xxx)
+  UNAUTHORIZED: 1001,
+  FORBIDDEN: 1002,
+
   // User errors (10xxx)
   USER_NOT_FOUND: 10001,
   INVALID_VERIFICATION_CODE: 10002,
   INVALID_TOKEN: 10003,
   TOKEN_EXPIRED: 10004,
   PHONE_ALREADY_EXISTS: 10005,
+
+  // Validation errors (11xxx)
+  VALIDATION_FAILED: 11001,
 
   // Merchant errors (20xxx)
   MERCHANT_NOT_FOUND: 20001,

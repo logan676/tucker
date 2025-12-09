@@ -9,6 +9,8 @@ import { PhoneLoginDto, LoginResponseDto, UserDto } from './dto/phone-login.dto'
 import { RefreshTokenDto, RefreshTokenResponseDto } from './dto/refresh-token.dto';
 import { BusinessException } from '@/common/exceptions/business.exception';
 import { ErrorCodes } from '@/common/constants/error-codes';
+import { RedisService } from '@/modules/redis/redis.service';
+import { SmsService } from '@/modules/sms/sms.service';
 
 interface SmsCodeEntry {
   code: string;
@@ -17,14 +19,15 @@ interface SmsCodeEntry {
 
 @Injectable()
 export class AuthService {
-  // In-memory store for SMS codes (use Redis in production)
-  private smsCodeStore: Map<string, SmsCodeEntry> = new Map();
+  private readonly SMS_CODE_PREFIX = 'sms:code:';
 
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly redisService: RedisService,
+    private readonly smsService: SmsService,
   ) {}
 
   async sendSms(dto: SendSmsDto): Promise<SendSmsResponseDto> {
@@ -33,22 +36,27 @@ export class AuthService {
     const expireSeconds = this.configService.get<number>('app.smsCodeExpireSeconds') || 300;
     const expiresAt = Date.now() + expireSeconds * 1000;
 
-    // Store code (in production, use Redis)
-    this.smsCodeStore.set(dto.phone, { code, expiresAt });
+    // Store code in Redis with TTL
+    const redisKey = `${this.SMS_CODE_PREFIX}${dto.phone}`;
+    await this.redisService.setJson<SmsCodeEntry>(redisKey, { code, expiresAt }, expireSeconds);
 
     // In development, log the code
     if (this.configService.get('app.nodeEnv') !== 'production') {
       console.log(`[SMS] Code for ${dto.phone}: ${code}`);
     }
 
-    // TODO: Integrate with actual SMS service provider
+    // Send SMS via Twilio (in production)
+    if (this.configService.get('app.nodeEnv') === 'production') {
+      await this.smsService.sendVerificationCode(dto.phone, code);
+    }
 
     return { expireIn: 60 };
   }
 
   async phoneLogin(dto: PhoneLoginDto): Promise<LoginResponseDto> {
-    // Verify SMS code
-    const storedEntry = this.smsCodeStore.get(dto.phone);
+    // Verify SMS code from Redis
+    const redisKey = `${this.SMS_CODE_PREFIX}${dto.phone}`;
+    const storedEntry = await this.redisService.getJson<SmsCodeEntry>(redisKey);
 
     if (!storedEntry) {
       throw new BusinessException(
@@ -59,7 +67,7 @@ export class AuthService {
     }
 
     if (Date.now() > storedEntry.expiresAt) {
-      this.smsCodeStore.delete(dto.phone);
+      await this.redisService.del(redisKey);
       throw new BusinessException(
         ErrorCodes.INVALID_VERIFICATION_CODE,
         'Verification code expired',
@@ -80,8 +88,8 @@ export class AuthService {
       );
     }
 
-    // Clear used code
-    this.smsCodeStore.delete(dto.phone);
+    // Clear used code from Redis
+    await this.redisService.del(redisKey);
 
     // Find or create user
     let user = await this.userRepository.findOne({
