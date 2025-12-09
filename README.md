@@ -1,124 +1,124 @@
 # Tucker
 
-一个完整的本地生活服务平台，提供外卖点餐、商家管理等功能。
+A comprehensive local life service platform providing food delivery, merchant management, and more.
 
-## 项目概述
+## Overview
 
-Tucker 是一个全栈本地生活服务平台，包含：
-- **用户端** - iOS/Android/Web 应用，供消费者浏览商家、点餐、下单
-- **商家端** - iOS/Android 应用，供商家管理店铺、处理订单
-- **管理后台** - Web Dashboard，供平台运营管理
-- **后端服务** - 提供 API 服务的微服务架构
+Tucker is a full-stack local life service platform consisting of:
+- **Customer Apps** - iOS/Android/Web applications for consumers to browse merchants, order food, and manage orders
+- **Merchant Apps** - iOS/Android applications for merchants to manage stores and process orders
+- **Dashboard** - Web admin panel for platform operations management
+- **API Services** - Backend microservices architecture
 
-## 技术栈
+## Tech Stack
 
-### 客户端
-| 平台 | 技术 | 说明 |
-|------|------|------|
-| iOS | Swift + SwiftUI | 用户端 & 商家端 |
-| Android | Kotlin + Jetpack Compose | 用户端 & 商家端 |
-| Web | React + TypeScript + Next.js | 用户 Web 端 |
-| Dashboard | React + TypeScript + Ant Design | 管理后台 |
+### Client Applications
+| Platform | Technology | Description |
+|----------|------------|-------------|
+| iOS | Swift + SwiftUI | Customer & Merchant apps |
+| Android | Kotlin + Jetpack Compose | Customer & Merchant apps |
+| Web | React + TypeScript + Next.js | Customer web application |
+| Dashboard | React + TypeScript + Ant Design | Admin panel |
 
-### 后端
-| 组件 | 技术 | 说明 |
-|------|------|------|
-| API Gateway | Kong / Nginx | 统一入口、限流、认证 |
-| 主服务 | Node.js + NestJS | 业务逻辑 |
-| 数据库 | PostgreSQL | 主数据存储 |
-| 缓存 | Redis | 会话、热点数据缓存 |
-| 搜索 | Elasticsearch | 商家、商品搜索 |
-| 消息队列 | RabbitMQ | 异步任务处理 |
-| 对象存储 | MinIO / AWS S3 | 图片、文件存储 |
+### Backend
+| Component | Technology | Description |
+|-----------|------------|-------------|
+| API Gateway | Kong / Nginx | Unified entry, rate limiting, auth |
+| Main Service | Node.js + NestJS | Business logic |
+| Database | PostgreSQL | Primary data storage |
+| Cache | Redis | Session, hot data caching |
+| Search | Elasticsearch | Merchant & product search |
+| Message Queue | RabbitMQ | Async task processing |
+| Object Storage | MinIO / AWS S3 | Image & file storage |
 
-## 项目结构
+## Project Structure
 
 ```
 tucker/
 ├── apps/
-│   ├── api/                    # 后端 API 服务
-│   ├── web/                    # 用户 Web 端
-│   ├── dashboard/              # 管理后台
-│   ├── ios-customer/           # iOS 用户端
-│   ├── ios-merchant/           # iOS 商家端
-│   ├── android-customer/       # Android 用户端
-│   └── android-merchant/       # Android 商家端
+│   ├── api/                    # Backend API service
+│   ├── web/                    # Customer web application
+│   ├── dashboard/              # Admin dashboard
+│   ├── ios-customer/           # iOS customer app
+│   ├── ios-merchant/           # iOS merchant app
+│   ├── android-customer/       # Android customer app
+│   └── android-merchant/       # Android merchant app
 ├── packages/
-│   ├── shared-types/           # 共享类型定义
-│   ├── api-client/             # API 客户端 SDK
-│   └── ui-components/          # 共享 UI 组件
-├── docs/                       # 项目文档
-│   ├── architecture/           # 架构文档
-│   ├── api/                    # API 文档
-│   ├── database/               # 数据库文档
-│   ├── mobile/                 # 移动端文档
-│   └── deployment/             # 部署文档
-└── infrastructure/             # 基础设施配置
-    ├── docker/                 # Docker 配置
-    ├── k8s/                    # Kubernetes 配置
-    └── terraform/              # 云资源配置
+│   ├── shared-types/           # Shared TypeScript types
+│   ├── api-client/             # API client SDK
+│   └── ui-components/          # Shared UI components
+├── docs/                       # Documentation
+│   ├── architecture/           # Architecture docs
+│   ├── api/                    # API docs
+│   ├── database/               # Database docs
+│   ├── mobile/                 # Mobile development docs
+│   └── deployment/             # Deployment docs
+└── infrastructure/             # Infrastructure configs
+    ├── docker/                 # Docker configs
+    ├── k8s/                    # Kubernetes configs
+    └── terraform/              # Cloud resource configs
 ```
 
-## 核心功能模块
+## Core Features
 
-### 用户端功能
-- 首页推荐与分类浏览
-- 商家搜索与筛选
-- 商家详情与菜单浏览
-- 购物车与下单
-- 订单管理与追踪
-- 地址管理
-- 优惠券与会员系统
-- 评价与反馈
+### Customer App Features
+- Home page recommendations and category browsing
+- Merchant search and filtering
+- Merchant details and menu browsing
+- Shopping cart and checkout
+- Order management and tracking
+- Address management
+- Coupons and membership system
+- Reviews and feedback
 
-### 商家端功能
-- 店铺信息管理
-- 菜品管理（增删改查、上下架）
-- 订单接单与处理
-- 营业状态管理
-- 数据统计与报表
-- 评价回复
+### Merchant App Features
+- Store information management
+- Product management (CRUD, availability)
+- Order receiving and processing
+- Business status management
+- Data statistics and reports
+- Review replies
 
-### 管理后台功能
-- 用户管理
-- 商家审核与管理
-- 订单监控
-- 数据统计与分析
-- 系统配置
-- 营销活动管理
+### Dashboard Features
+- User management
+- Merchant review and management
+- Order monitoring
+- Data analytics
+- System configuration
+- Marketing campaign management
 
-## 快速开始
+## Getting Started
 
-### 环境要求
+### Prerequisites
 - Node.js >= 18.x
 - PostgreSQL >= 15.x
 - Redis >= 7.x
 - Docker & Docker Compose
 
-### 本地开发
+### Local Development
 
 ```bash
-# 克隆项目
-git clone https://github.com/your-org/tucker.git
+# Clone the project
+git clone https://github.com/logan676/tucker.git
 cd tucker
 
-# 安装依赖
+# Install dependencies
 pnpm install
 
-# 启动基础设施（数据库、Redis等）
+# Start infrastructure (database, Redis, etc.)
 docker-compose up -d
 
-# 启动后端服务
+# Start backend service
 pnpm --filter api dev
 
-# 启动 Web 端
+# Start web application
 pnpm --filter web dev
 
-# 启动管理后台
+# Start dashboard
 pnpm --filter dashboard dev
 ```
 
-### 移动端开发
+### Mobile Development
 
 **iOS:**
 ```bash
@@ -133,19 +133,40 @@ cd apps/android-customer
 ./gradlew assembleDebug
 ```
 
-## 文档索引
+## Testing
 
-- [架构设计](./docs/architecture/README.md)
-- [API 文档](./docs/api/README.md)
-- [数据库设计](./docs/database/README.md)
-- [移动端开发指南](./docs/mobile/README.md)
-- [部署指南](./docs/deployment/README.md)
+Each application includes comprehensive testing:
 
-## 开发规范
+```bash
+# Run all tests
+pnpm test
 
-- [Git 提交规范](./docs/CONTRIBUTING.md)
-- [代码风格指南](./docs/CODE_STYLE.md)
-- [API 设计规范](./docs/api/CONVENTIONS.md)
+# Run API tests
+pnpm --filter api test
+
+# Run dashboard tests
+pnpm --filter dashboard test
+
+# Run web tests
+pnpm --filter web test
+```
+
+See individual app READMEs for detailed testing instructions.
+
+## Documentation
+
+- [Architecture Design](./docs/architecture/README.md)
+- [API Documentation](./docs/api/README.md)
+- [Database Design](./docs/database/README.md)
+- [Mobile Development Guide](./docs/mobile/README.md)
+- [Deployment Guide](./docs/deployment/README.md)
+- [Testing Guide](./docs/testing/README.md)
+
+## Contributing
+
+- [Git Commit Guidelines](./docs/CONTRIBUTING.md)
+- [Code Style Guide](./docs/CODE_STYLE.md)
+- [API Design Conventions](./docs/api/CONVENTIONS.md)
 
 ## License
 

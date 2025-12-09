@@ -1,0 +1,201 @@
+name: iOS CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/ios-customer/**'
+      - 'apps/ios-merchant/**'
+      - '.github/workflows/ios.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/ios-customer/**'
+      - 'apps/ios-merchant/**'
+
+jobs:
+  build-customer:
+    name: Build iOS Customer
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+
+      - name: Cache Swift packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            apps/ios-customer/.build
+            ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-spm-customer-${{ hashFiles('apps/ios-customer/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-customer-
+
+      - name: Resolve Swift packages
+        run: |
+          cd apps/ios-customer
+          xcodebuild -resolvePackageDependencies \
+            -project TuckerCustomer.xcodeproj \
+            -scheme TuckerCustomer
+
+      - name: Build for testing
+        run: |
+          cd apps/ios-customer
+          xcodebuild build-for-testing \
+            -project TuckerCustomer.xcodeproj \
+            -scheme TuckerCustomer \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run unit tests
+        run: |
+          cd apps/ios-customer
+          xcodebuild test-without-building \
+            -project TuckerCustomer.xcodeproj \
+            -scheme TuckerCustomer \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+            -resultBundlePath TestResults.xcresult
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: ios-customer-test-results
+          path: apps/ios-customer/TestResults.xcresult
+
+  build-merchant:
+    name: Build iOS Merchant
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+
+      - name: Cache Swift packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            apps/ios-merchant/.build
+            ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-spm-merchant-${{ hashFiles('apps/ios-merchant/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-merchant-
+
+      - name: Resolve Swift packages
+        run: |
+          cd apps/ios-merchant
+          xcodebuild -resolvePackageDependencies \
+            -project TuckerMerchant.xcodeproj \
+            -scheme TuckerMerchant
+
+      - name: Build for testing
+        run: |
+          cd apps/ios-merchant
+          xcodebuild build-for-testing \
+            -project TuckerMerchant.xcodeproj \
+            -scheme TuckerMerchant \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run unit tests
+        run: |
+          cd apps/ios-merchant
+          xcodebuild test-without-building \
+            -project TuckerMerchant.xcodeproj \
+            -scheme TuckerMerchant \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+            -resultBundlePath TestResults.xcresult
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: ios-merchant-test-results
+          path: apps/ios-merchant/TestResults.xcresult
+
+  ui-tests:
+    name: iOS UI Tests
+    runs-on: macos-14
+    needs: [build-customer, build-merchant]
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+
+      - name: Run UI tests (Customer)
+        run: |
+          cd apps/ios-customer
+          xcodebuild test \
+            -project TuckerCustomer.xcodeproj \
+            -scheme TuckerCustomerUITests \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO
+
+  archive-customer:
+    name: Archive iOS Customer
+    runs-on: macos-14
+    needs: [build-customer, ui-tests]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+
+      - name: Install certificates
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # Create keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+
+          # Import certificate
+          echo "$CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          security import certificate.p12 -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+
+          # Install provisioning profile
+          echo "$PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+
+          # Allow codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+      - name: Archive app
+        run: |
+          cd apps/ios-customer
+          xcodebuild archive \
+            -project TuckerCustomer.xcodeproj \
+            -scheme TuckerCustomer \
+            -archivePath TuckerCustomer.xcarchive \
+            -configuration Release
+
+      - name: Export IPA
+        run: |
+          cd apps/ios-customer
+          xcodebuild -exportArchive \
+            -archivePath TuckerCustomer.xcarchive \
+            -exportPath export \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: Upload to TestFlight
+        env:
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+        run: |
+          xcrun altool --upload-app \
+            --type ios \
+            --file apps/ios-customer/export/TuckerCustomer.ipa \
+            --apiKey "$APP_STORE_CONNECT_API_KEY"
