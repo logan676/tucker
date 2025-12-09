@@ -6,6 +6,7 @@ import { UserModule } from './modules/user/user.module';
 import { MerchantModule } from './modules/merchant/merchant.module';
 import { ProductModule } from './modules/product/product.module';
 import { OrderModule } from './modules/order/order.module';
+import { PaymentModule } from './modules/payment/payment.module';
 import { AdminModule } from './modules/admin/admin.module';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
@@ -43,6 +44,7 @@ import appConfig from './config/app.config';
     MerchantModule,
     ProductModule,
     OrderModule,
+    PaymentModule,
     AdminModule,
   ],
 })
