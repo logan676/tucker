@@ -20,20 +20,19 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { User } from '../user/entities/user.entity';
+import { AdminGuard } from '@/common/guards/admin.guard';
 import { Merchant } from '../merchant/entities/merchant.entity';
 import { Category } from '../merchant/entities/category.entity';
 import { Product } from '../product/entities/product.entity';
-import { Public } from '@/common/decorators/public.decorator';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
 @Controller('admin')
+@UseGuards(JwtAuthGuard, AdminGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   // Dashboard
-  @Public()
   @Get('dashboard/stats')
   @ApiOperation({ summary: 'Get dashboard statistics' })
   @ApiResponse({ status: 200 })
@@ -42,7 +41,6 @@ export class AdminController {
   }
 
   // Users
-  @Public()
   @Get('users')
   @ApiOperation({ summary: 'Get user list with pagination' })
   @ApiResponse({ status: 200 })
@@ -51,7 +49,13 @@ export class AdminController {
   }
 
   // Merchants
-  @Public()
+  @Get('merchants')
+  @ApiOperation({ summary: 'Get merchant list with pagination' })
+  @ApiResponse({ status: 200 })
+  async getMerchants(@Query() query: QueryUsersDto) {
+    return this.adminService.getMerchants(query);
+  }
+
   @Post('merchants')
   @ApiOperation({ summary: 'Create a new merchant' })
   @ApiResponse({ status: 201 })
@@ -59,7 +63,6 @@ export class AdminController {
     return this.adminService.createMerchant(dto);
   }
 
-  @Public()
   @Put('merchants/:id')
   @ApiOperation({ summary: 'Update a merchant' })
   @ApiResponse({ status: 200 })
@@ -70,7 +73,6 @@ export class AdminController {
     return this.adminService.updateMerchant(id, dto);
   }
 
-  @Public()
   @Delete('merchants/:id')
   @ApiOperation({ summary: 'Delete a merchant' })
   @ApiResponse({ status: 200 })
@@ -79,7 +81,13 @@ export class AdminController {
   }
 
   // Categories
-  @Public()
+  @Get('categories')
+  @ApiOperation({ summary: 'Get all categories' })
+  @ApiResponse({ status: 200 })
+  async getCategories() {
+    return this.adminService.getCategories();
+  }
+
   @Post('categories')
   @ApiOperation({ summary: 'Create a new category' })
   @ApiResponse({ status: 201 })
@@ -87,7 +95,6 @@ export class AdminController {
     return this.adminService.createCategory(dto);
   }
 
-  @Public()
   @Put('categories/:id')
   @ApiOperation({ summary: 'Update a category' })
   @ApiResponse({ status: 200 })
@@ -98,7 +105,6 @@ export class AdminController {
     return this.adminService.updateCategory(id, dto);
   }
 
-  @Public()
   @Delete('categories/:id')
   @ApiOperation({ summary: 'Delete a category' })
   @ApiResponse({ status: 200 })
@@ -107,7 +113,6 @@ export class AdminController {
   }
 
   // Products
-  @Public()
   @Post('products')
   @ApiOperation({ summary: 'Create a new product' })
   @ApiResponse({ status: 201 })
@@ -115,7 +120,6 @@ export class AdminController {
     return this.adminService.createProduct(dto);
   }
 
-  @Public()
   @Put('products/:id')
   @ApiOperation({ summary: 'Update a product' })
   @ApiResponse({ status: 200 })
@@ -126,7 +130,6 @@ export class AdminController {
     return this.adminService.updateProduct(id, dto);
   }
 
-  @Public()
   @Delete('products/:id')
   @ApiOperation({ summary: 'Delete a product' })
   @ApiResponse({ status: 200 })

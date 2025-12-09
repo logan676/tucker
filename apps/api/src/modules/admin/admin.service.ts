@@ -124,6 +124,28 @@ export class AdminService {
   }
 
   // Merchants
+  async getMerchants(query: QueryUsersDto): Promise<PaginatedResult<Merchant>> {
+    const { page = 1, pageSize = 20, keyword } = query;
+
+    const qb = this.merchantRepository.createQueryBuilder('merchant');
+
+    if (keyword) {
+      qb.where('merchant.name LIKE :keyword OR merchant.phone LIKE :keyword', {
+        keyword: `%${keyword}%`,
+      });
+    }
+
+    qb.orderBy('merchant.createdAt', 'DESC');
+
+    const total = await qb.getCount();
+    const merchants = await qb
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getMany();
+
+    return new PaginatedResult(merchants, page, pageSize, total);
+  }
+
   async createMerchant(dto: CreateMerchantDto): Promise<Merchant> {
     const merchant = this.merchantRepository.create(dto);
     return this.merchantRepository.save(merchant);
@@ -159,6 +181,12 @@ export class AdminService {
   }
 
   // Categories
+  async getCategories(): Promise<Category[]> {
+    return this.categoryRepository.find({
+      order: { sortOrder: 'ASC' },
+    });
+  }
+
   async createCategory(dto: CreateCategoryDto): Promise<Category> {
     const category = this.categoryRepository.create(dto);
     return this.categoryRepository.save(category);
