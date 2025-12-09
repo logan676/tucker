@@ -9,6 +9,12 @@ import {
 } from 'typeorm';
 import { Address } from './address.entity';
 
+export enum UserRole {
+  CUSTOMER = 'customer',
+  MERCHANT = 'merchant',
+  ADMIN = 'admin',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -22,6 +28,13 @@ export class User {
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   avatar: string | null;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.CUSTOMER,
+  })
+  role: UserRole;
 
   @Column({ type: 'int', default: 0 })
   membershipLevel: number;
