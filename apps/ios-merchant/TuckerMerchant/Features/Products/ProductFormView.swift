@@ -61,7 +61,7 @@ struct ProductFormView: View {
             if let error = error {
                 Section {
                     Text(error)
-                        .foregroundColor(.red)
+                        .foregroundColor(.tuckerError)
                 }
             }
         }

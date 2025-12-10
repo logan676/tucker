@@ -1,0 +1,477 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		M0000001218D0001001BBBBB /* TuckerMerchantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000011218D0001001BBBBB /* TuckerMerchantApp.swift */; };
+		M0000002218D0001001BBBBB /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000012218D0001001BBBBB /* Models.swift */; };
+		M0000003218D0001001BBBBB /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000013218D0001001BBBBB /* APIService.swift */; };
+		M0000004218D0001001BBBBB /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000014218D0001001BBBBB /* AuthManager.swift */; };
+		M0000005218D0001001BBBBB /* TuckerColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000015218D0001001BBBBB /* TuckerColors.swift */; };
+		M0000006218D0001001BBBBB /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000016218D0001001BBBBB /* LoginView.swift */; };
+		M0000007218D0001001BBBBB /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000017218D0001001BBBBB /* MainTabView.swift */; };
+		M0000008218D0001001BBBBB /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000018218D0001001BBBBB /* DashboardView.swift */; };
+		M0000009218D0001001BBBBB /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000019218D0001001BBBBB /* DashboardViewModel.swift */; };
+		M000000A218D0001001BBBBB /* OrdersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M000001A218D0001001BBBBB /* OrdersView.swift */; };
+		M000000B218D0001001BBBBB /* OrdersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = M000001B218D0001001BBBBB /* OrdersViewModel.swift */; };
+		M000000C218D0001001BBBBB /* OrderDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M000001C218D0001001BBBBB /* OrderDetailView.swift */; };
+		M000000D218D0001001BBBBB /* ProductsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M000001D218D0001001BBBBB /* ProductsView.swift */; };
+		M000000E218D0001001BBBBB /* ProductsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = M000001E218D0001001BBBBB /* ProductsViewModel.swift */; };
+		M000000F218D0001001BBBBB /* ProductFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M000001F218D0001001BBBBB /* ProductFormView.swift */; };
+		M0000010218D0001001BBBBB /* StoreSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000020218D0001001BBBBB /* StoreSettingsView.swift */; };
+		M0000021218D0001001BBBBB /* StoreSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = M0000022218D0001001BBBBB /* StoreSettingsViewModel.swift */; };
+		M0000040218D0001001BBBBB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = M0000041218D0001001BBBBB /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		M0000000218D0001001BBBBB /* TuckerMerchant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TuckerMerchant.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		M0000011218D0001001BBBBB /* TuckerMerchantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuckerMerchantApp.swift; sourceTree = "<group>"; };
+		M0000012218D0001001BBBBB /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		M0000013218D0001001BBBBB /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		M0000014218D0001001BBBBB /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		M0000015218D0001001BBBBB /* TuckerColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuckerColors.swift; sourceTree = "<group>"; };
+		M0000016218D0001001BBBBB /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		M0000017218D0001001BBBBB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		M0000018218D0001001BBBBB /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		M0000019218D0001001BBBBB /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		M000001A218D0001001BBBBB /* OrdersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersView.swift; sourceTree = "<group>"; };
+		M000001B218D0001001BBBBB /* OrdersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersViewModel.swift; sourceTree = "<group>"; };
+		M000001C218D0001001BBBBB /* OrderDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderDetailView.swift; sourceTree = "<group>"; };
+		M000001D218D0001001BBBBB /* ProductsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsView.swift; sourceTree = "<group>"; };
+		M000001E218D0001001BBBBB /* ProductsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsViewModel.swift; sourceTree = "<group>"; };
+		M000001F218D0001001BBBBB /* ProductFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductFormView.swift; sourceTree = "<group>"; };
+		M0000020218D0001001BBBBB /* StoreSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSettingsView.swift; sourceTree = "<group>"; };
+		M0000022218D0001001BBBBB /* StoreSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSettingsViewModel.swift; sourceTree = "<group>"; };
+		M0000041218D0001001BBBBB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		M00000FD218D0001001BBBBB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXResourcesBuildPhase section */
+		M0000050218D0001001BBBBB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				M0000040218D0001001BBBBB /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXGroup section */
+		M00000F7218D0001001BBBBB = {
+			isa = PBXGroup;
+			children = (
+				M0000100218D0001001BBBBB /* TuckerMerchant */,
+				M00000FF218D0001001BBBBB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		M00000FF218D0001001BBBBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				M0000000218D0001001BBBBB /* TuckerMerchant.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		M0000100218D0001001BBBBB /* TuckerMerchant */ = {
+			isa = PBXGroup;
+			children = (
+				M0000101218D0001001BBBBB /* App */,
+				M0000102218D0001001BBBBB /* Models */,
+				M0000103218D0001001BBBBB /* Services */,
+				M0000104218D0001001BBBBB /* Theme */,
+				M0000105218D0001001BBBBB /* Features */,
+				M0000041218D0001001BBBBB /* Assets.xcassets */,
+			);
+			path = TuckerMerchant;
+			sourceTree = "<group>";
+		};
+		M0000101218D0001001BBBBB /* App */ = {
+			isa = PBXGroup;
+			children = (
+				M0000011218D0001001BBBBB /* TuckerMerchantApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		M0000102218D0001001BBBBB /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				M0000012218D0001001BBBBB /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		M0000103218D0001001BBBBB /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				M0000013218D0001001BBBBB /* APIService.swift */,
+				M0000014218D0001001BBBBB /* AuthManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		M0000104218D0001001BBBBB /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				M0000015218D0001001BBBBB /* TuckerColors.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		M0000105218D0001001BBBBB /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				M0000106218D0001001BBBBB /* Auth */,
+				M0000107218D0001001BBBBB /* Dashboard */,
+				M0000108218D0001001BBBBB /* Orders */,
+				M0000109218D0001001BBBBB /* Products */,
+				M000010A218D0001001BBBBB /* Store */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		M0000106218D0001001BBBBB /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				M0000016218D0001001BBBBB /* LoginView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		M0000107218D0001001BBBBB /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				M0000017218D0001001BBBBB /* MainTabView.swift */,
+				M0000018218D0001001BBBBB /* DashboardView.swift */,
+				M0000019218D0001001BBBBB /* DashboardViewModel.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		M0000108218D0001001BBBBB /* Orders */ = {
+			isa = PBXGroup;
+			children = (
+				M000001A218D0001001BBBBB /* OrdersView.swift */,
+				M000001B218D0001001BBBBB /* OrdersViewModel.swift */,
+				M000001C218D0001001BBBBB /* OrderDetailView.swift */,
+			);
+			path = Orders;
+			sourceTree = "<group>";
+		};
+		M0000109218D0001001BBBBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				M000001D218D0001001BBBBB /* ProductsView.swift */,
+				M000001E218D0001001BBBBB /* ProductsViewModel.swift */,
+				M000001F218D0001001BBBBB /* ProductFormView.swift */,
+			);
+			path = Products;
+			sourceTree = "<group>";
+		};
+		M000010A218D0001001BBBBB /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				M0000020218D0001001BBBBB /* StoreSettingsView.swift */,
+				M0000022218D0001001BBBBB /* StoreSettingsViewModel.swift */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		M00000FE218D0001001BBBBB /* TuckerMerchant */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = M0000110218D0001001BBBBB /* Build configuration list for PBXNativeTarget "TuckerMerchant" */;
+			buildPhases = (
+				M00000FC218D0001001BBBBB /* Sources */,
+				M00000FD218D0001001BBBBB /* Frameworks */,
+				M0000050218D0001001BBBBB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TuckerMerchant;
+			productName = TuckerMerchant;
+			productReference = M0000000218D0001001BBBBB /* TuckerMerchant.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		M00000F8218D0001001BBBBB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					M00000FE218D0001001BBBBB = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = M00000FB218D0001001BBBBB /* Build configuration list for PBXProject "TuckerMerchant" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = M00000F7218D0001001BBBBB;
+			productRefGroup = M00000FF218D0001001BBBBB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				M00000FE218D0001001BBBBB /* TuckerMerchant */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		M00000FC218D0001001BBBBB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				M0000001218D0001001BBBBB /* TuckerMerchantApp.swift in Sources */,
+				M0000002218D0001001BBBBB /* Models.swift in Sources */,
+				M0000003218D0001001BBBBB /* APIService.swift in Sources */,
+				M0000004218D0001001BBBBB /* AuthManager.swift in Sources */,
+				M0000005218D0001001BBBBB /* TuckerColors.swift in Sources */,
+				M0000006218D0001001BBBBB /* LoginView.swift in Sources */,
+				M0000007218D0001001BBBBB /* MainTabView.swift in Sources */,
+				M0000008218D0001001BBBBB /* DashboardView.swift in Sources */,
+				M0000009218D0001001BBBBB /* DashboardViewModel.swift in Sources */,
+				M000000A218D0001001BBBBB /* OrdersView.swift in Sources */,
+				M000000B218D0001001BBBBB /* OrdersViewModel.swift in Sources */,
+				M000000C218D0001001BBBBB /* OrderDetailView.swift in Sources */,
+				M000000D218D0001001BBBBB /* ProductsView.swift in Sources */,
+				M000000E218D0001001BBBBB /* ProductsViewModel.swift in Sources */,
+				M000000F218D0001001BBBBB /* ProductFormView.swift in Sources */,
+				M0000010218D0001001BBBBB /* StoreSettingsView.swift in Sources */,
+				M0000021218D0001001BBBBB /* StoreSettingsViewModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		M000010E218D0001001BBBBB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		M000010F218D0001001BBBBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		M0000111218D0001001BBBBB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TuckerMerchant/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tucker.merchant;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		M0000112218D0001001BBBBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TuckerMerchant/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tucker.merchant;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		M00000FB218D0001001BBBBB /* Build configuration list for PBXProject "TuckerMerchant" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				M000010E218D0001001BBBBB /* Debug */,
+				M000010F218D0001001BBBBB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		M0000110218D0001001BBBBB /* Build configuration list for PBXNativeTarget "TuckerMerchant" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				M0000111218D0001001BBBBB /* Debug */,
+				M0000112218D0001001BBBBB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = M00000F8218D0001001BBBBB /* Project object */;
+}

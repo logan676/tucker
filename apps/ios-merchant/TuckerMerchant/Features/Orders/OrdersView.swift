@@ -83,8 +83,8 @@ struct StatusFilterButton: View {
                 .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.blue : Color(.systemGray5))
-                .foregroundColor(isSelected ? .white : .primary)
+                .background(isSelected ? Color.tuckerPrimary : Color.tuckerBackground)
+                .foregroundColor(isSelected ? .white : .tuckerTextPrimary)
                 .cornerRadius(20)
         }
     }
@@ -98,6 +98,7 @@ struct OrderRowView: View {
             HStack {
                 Text("#\(order.orderNo)")
                     .font(.headline)
+                    .foregroundColor(.tuckerTextPrimary)
 
                 Spacer()
 
@@ -107,21 +108,21 @@ struct OrderRowView: View {
             if let items = order.items, !items.isEmpty {
                 Text(items.map { "\($0.name) x\($0.quantity)" }.joined(separator: ", "))
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.tuckerTextSecondary)
                     .lineLimit(2)
             }
 
             HStack {
                 Text(order.createdAt)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.tuckerTextSecondary)
 
                 Spacer()
 
                 Text(String(format: "¥%.2f", order.payAmount))
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.red)
+                    .foregroundColor(.tuckerPrimary)
             }
         }
         .padding(.vertical, 8)
@@ -144,13 +145,13 @@ struct StatusBadge: View {
 
     var statusColor: Color {
         switch status {
-        case .pendingPayment: return .orange
-        case .pendingConfirm: return .blue
-        case .preparing: return .purple
-        case .ready: return .green
-        case .delivering: return .teal
-        case .completed: return .gray
-        case .cancelled, .refunded: return .red
+        case .pendingPayment: return .tuckerPrimary
+        case .pendingConfirm: return .tuckerInfo
+        case .preparing: return .tuckerSecondary
+        case .ready: return .tuckerSuccess
+        case .delivering: return .tuckerInfo
+        case .completed: return .tuckerTextSecondary
+        case .cancelled, .refunded: return .tuckerError
         }
     }
 }

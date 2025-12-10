@@ -17,15 +17,16 @@ struct LoginView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "storefront.fill")
                         .font(.system(size: 60))
-                        .foregroundColor(.blue)
+                        .foregroundColor(.tuckerPrimary)
 
                     Text("Tucker Merchant")
                         .font(.title)
                         .fontWeight(.bold)
+                        .foregroundColor(.tuckerTextPrimary)
 
                     Text("Merchant Portal")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.tuckerTextSecondary)
                 }
                 .padding(.bottom, 40)
 
@@ -33,18 +34,18 @@ struct LoginView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Phone Number")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.tuckerTextSecondary)
 
                     HStack {
                         Text("+86")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.tuckerTextSecondary)
 
                         TextField("Enter phone number", text: $phone)
                             .keyboardType(.phonePad)
                             .disabled(isCodeSent)
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(Color.tuckerBackground)
                     .cornerRadius(12)
                 }
 
@@ -53,7 +54,7 @@ struct LoginView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Verification Code")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.tuckerTextSecondary)
 
                         HStack {
                             TextField("Enter code", text: $code)
@@ -61,16 +62,16 @@ struct LoginView: View {
 
                             if countdown > 0 {
                                 Text("\(countdown)s")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.tuckerTextSecondary)
                             } else {
                                 Button("Resend") {
                                     sendCode()
                                 }
-                                .foregroundColor(.blue)
+                                .foregroundColor(.tuckerPrimary)
                             }
                         }
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(Color.tuckerBackground)
                         .cornerRadius(12)
                     }
                 }
@@ -79,7 +80,7 @@ struct LoginView: View {
                 if let error = authManager.errorMessage {
                     Text(error)
                         .font(.caption)
-                        .foregroundColor(.red)
+                        .foregroundColor(.tuckerError)
                         .multilineTextAlignment(.center)
                 }
 
@@ -101,7 +102,7 @@ struct LoginView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(phone.count >= 11 ? Color.blue : Color.gray)
+                .background(phone.count >= 11 ? Color.tuckerPrimary : Color.tuckerPlaceholder)
                 .foregroundColor(.white)
                 .cornerRadius(12)
                 .disabled(phone.count < 11 || authManager.isLoading)
@@ -111,9 +112,10 @@ struct LoginView: View {
                 // Dev hint
                 Text("Dev: 13800138000 / 123456")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.tuckerTextSecondary)
             }
             .padding()
+            .background(Color.tuckerSurface)
             .navigationBarHidden(true)
         }
     }

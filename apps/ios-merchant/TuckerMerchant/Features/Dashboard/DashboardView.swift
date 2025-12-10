@@ -26,14 +26,14 @@ struct DashboardView: View {
                                     title: "Orders",
                                     value: "\(stats.todayOrders)",
                                     icon: "bag.fill",
-                                    color: .blue
+                                    color: .tuckerInfo
                                 )
 
                                 StatCard(
                                     title: "Revenue",
                                     value: String(format: "¥%.2f", stats.todayRevenue),
                                     icon: "dollarsign.circle.fill",
-                                    color: .green
+                                    color: .tuckerSuccess
                                 )
                             }
 
@@ -42,14 +42,14 @@ struct DashboardView: View {
                                     title: "Pending",
                                     value: "\(stats.pendingOrders)",
                                     icon: "clock.fill",
-                                    color: .orange
+                                    color: .tuckerPrimary
                                 )
 
                                 StatCard(
                                     title: "Rating",
                                     value: String(format: "%.1f", stats.averageRating),
                                     icon: "star.fill",
-                                    color: .yellow
+                                    color: .tuckerSecondary
                                 )
                             }
                         }
@@ -60,20 +60,21 @@ struct DashboardView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Overall")
                                 .font(.headline)
+                                .foregroundColor(.tuckerTextPrimary)
 
                             HStack(spacing: 16) {
                                 StatCard(
                                     title: "Total Orders",
                                     value: "\(stats.totalOrders)",
                                     icon: "shippingbox.fill",
-                                    color: .purple
+                                    color: .tuckerOchre
                                 )
 
                                 StatCard(
                                     title: "Total Revenue",
                                     value: String(format: "¥%.0f", stats.totalRevenue),
                                     icon: "banknote.fill",
-                                    color: .teal
+                                    color: .tuckerSuccess
                                 )
                             }
                         }
@@ -112,15 +113,16 @@ struct StoreStatusCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(merchant.name)
                     .font(.headline)
+                    .foregroundColor(.tuckerTextPrimary)
 
                 HStack {
                     Circle()
-                        .fill(merchant.isOpen ? Color.green : Color.red)
+                        .fill(merchant.isOpen ? Color.tuckerSuccess : Color.tuckerError)
                         .frame(width: 8, height: 8)
 
                     Text(merchant.isOpen ? "Open" : "Closed")
                         .font(.subheadline)
-                        .foregroundColor(merchant.isOpen ? .green : .red)
+                        .foregroundColor(merchant.isOpen ? .tuckerSuccess : .tuckerError)
                 }
             }
 
@@ -131,9 +133,10 @@ struct StoreStatusCard: View {
                 set: { _ in onToggle() }
             ))
             .labelsHidden()
+            .tint(.tuckerPrimary)
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(Color.tuckerSurface)
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
     }
@@ -156,14 +159,15 @@ struct StatCard: View {
             Text(value)
                 .font(.title2)
                 .fontWeight(.bold)
+                .foregroundColor(.tuckerTextPrimary)
 
             Text(title)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(.tuckerTextSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color(.systemBackground))
+        .background(Color.tuckerSurface)
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
     }

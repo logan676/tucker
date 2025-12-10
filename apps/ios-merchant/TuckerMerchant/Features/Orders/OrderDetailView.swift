@@ -96,22 +96,27 @@ struct OrderDetailView: View {
                 VStack(spacing: 8) {
                     HStack {
                         Text("Subtotal")
+                            .foregroundColor(.tuckerTextSecondary)
                         Spacer()
                         Text(String(format: "¥%.2f", order.totalAmount))
+                            .foregroundColor(.tuckerTextPrimary)
                     }
 
                     HStack {
                         Text("Delivery Fee")
+                            .foregroundColor(.tuckerTextSecondary)
                         Spacer()
                         Text(String(format: "¥%.2f", order.deliveryFee))
+                            .foregroundColor(.tuckerTextPrimary)
                     }
 
                     if order.discountAmount > 0 {
                         HStack {
                             Text("Discount")
+                                .foregroundColor(.tuckerTextSecondary)
                             Spacer()
                             Text(String(format: "-¥%.2f", order.discountAmount))
-                                .foregroundColor(.green)
+                                .foregroundColor(.tuckerSuccess)
                         }
                     }
 
@@ -120,16 +125,17 @@ struct OrderDetailView: View {
                     HStack {
                         Text("Total")
                             .fontWeight(.semibold)
+                            .foregroundColor(.tuckerTextPrimary)
                         Spacer()
                         Text(String(format: "¥%.2f", order.payAmount))
                             .font(.title3)
                             .fontWeight(.bold)
-                            .foregroundColor(.red)
+                            .foregroundColor(.tuckerPrimary)
                     }
                 }
                 .font(.subheadline)
                 .padding()
-                .background(Color(.systemBackground))
+                .background(Color.tuckerSurface)
                 .cornerRadius(12)
 
                 // Remark
@@ -163,7 +169,7 @@ struct OrderDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.blue)
+                    .background(Color.tuckerPrimary)
                     .foregroundColor(.white)
                     .cornerRadius(12)
                     .disabled(isUpdating)
@@ -179,8 +185,8 @@ struct OrderDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.red.opacity(0.1))
-                    .foregroundColor(.red)
+                    .background(Color.tuckerError.opacity(0.1))
+                    .foregroundColor(.tuckerError)
                     .cornerRadius(12)
                     .disabled(isUpdating)
                 }

@@ -88,7 +88,7 @@ struct ProductRowView: View {
             AsyncImage(url: URL(string: product.image ?? "")) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
-                Color.gray.opacity(0.2)
+                Color.tuckerBackground
             }
             .frame(width: 60, height: 60)
             .cornerRadius(8)
@@ -96,10 +96,11 @@ struct ProductRowView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(product.name)
                     .font(.headline)
+                    .foregroundColor(.tuckerTextPrimary)
 
                 Text(String(format: "¥%.2f", product.price))
                     .font(.subheadline)
-                    .foregroundColor(.red)
+                    .foregroundColor(.tuckerPrimary)
 
                 if !product.isAvailable {
                     Text("Unavailable")
@@ -107,7 +108,7 @@ struct ProductRowView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.red)
+                        .background(Color.tuckerError)
                         .cornerRadius(4)
                 }
             }
@@ -119,6 +120,7 @@ struct ProductRowView: View {
                 set: { _ in onToggleAvailability() }
             ))
             .labelsHidden()
+            .tint(.tuckerPrimary)
         }
         .padding(.vertical, 4)
     }

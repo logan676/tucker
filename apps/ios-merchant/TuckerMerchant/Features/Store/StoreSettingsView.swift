@@ -69,10 +69,11 @@ struct StoreSettingsView: View {
                             Spacer()
                             HStack(spacing: 4) {
                                 Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
+                                    .foregroundColor(.tuckerSecondary)
                                 Text(String(format: "%.1f", merchant.rating ?? 0))
+                                    .foregroundColor(.tuckerTextPrimary)
                                 Text("(\(merchant.ratingCount ?? 0))")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.tuckerTextSecondary)
                             }
                         }
 
@@ -80,7 +81,7 @@ struct StoreSettingsView: View {
                             Text("Monthly Sales")
                             Spacer()
                             Text("\(merchant.monthlySales ?? 0)")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.tuckerTextSecondary)
                         }
                     }
                 }
@@ -167,7 +168,7 @@ struct EditStoreInfoView: View {
             if let error = error {
                 Section {
                     Text(error)
-                        .foregroundColor(.red)
+                        .foregroundColor(.tuckerError)
                 }
             }
         }
