@@ -18,8 +18,16 @@ struct CheckoutView: View {
     @State private var showCouponSheet = false
     @State private var selectedCoupon: Coupon?
     @State private var couponDiscount: Double = 0
+    @State private var orderType: OrderType = .delivery
 
-    let deliveryFee: Double = 5.0
+    enum OrderType: String, CaseIterable {
+        case delivery = "Delivery"
+        case pickup = "Pickup"
+    }
+
+    var deliveryFee: Double {
+        orderType == .delivery ? 5.0 : 0.0
+    }
     let packagingFee: Double = 2.0
 
     var totalAmount: Double {
@@ -57,10 +65,17 @@ struct CheckoutView: View {
                 } else {
                     ScrollView {
                         VStack(spacing: 12) {
-                            // Delivery Address Section
-                            addressSection
+                            // Order Type Section (Delivery / Pickup)
+                            orderTypeSection
 
-                            // Delivery Time Section
+                            // Delivery Address Section (only for delivery)
+                            if orderType == .delivery {
+                                addressSection
+                            } else {
+                                pickupInfoSection
+                            }
+
+                            // Delivery/Pickup Time Section
                             deliveryTimeSection
 
                             // Order Items Section
@@ -121,6 +136,81 @@ struct CheckoutView: View {
                 }
             }
         }
+    }
+
+    private var orderTypeSection: some View {
+        HStack(spacing: 12) {
+            ForEach(OrderType.allCases, id: \.self) { type in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        orderType = type
+                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: type == .delivery ? "bicycle" : "bag.fill")
+                            .font(.subheadline)
+                        Text(type.rawValue)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
+                    .foregroundColor(orderType == type ? .white : .primary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        orderType == type
+                            ? LinearGradient(colors: [.tuckerOrange, .red], startPoint: .leading, endPoint: .trailing)
+                            : LinearGradient(colors: [Color(.systemGray5), Color(.systemGray5)], startPoint: .leading, endPoint: .trailing)
+                    )
+                    .cornerRadius(10)
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+    }
+
+    private var pickupInfoSection: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "storefront.fill")
+                    .font(.title3)
+                    .foregroundColor(.tuckerOrange)
+                    .frame(width: 24)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Pickup from Restaurant")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+
+                    Text("Please pick up your order at the restaurant counter")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .font(.caption2)
+                        Text("Ready in 15-20 mins after confirmation")
+                            .font(.caption)
+                    }
+                    .foregroundColor(.tuckerOrange)
+                }
+
+                Spacer()
+            }
+            .padding()
+
+            // Decorative divider with triangles
+            HStack(spacing: 0) {
+                ForEach(0..<30, id: \.self) { index in
+                    Triangle()
+                        .fill(index % 2 == 0 ? Color.green : Color.tuckerOrange)
+                        .frame(width: 14, height: 4)
+                }
+            }
+        }
+        .background(Color.white)
+        .cornerRadius(12)
     }
 
     private var addressSection: some View {
@@ -220,7 +310,7 @@ struct CheckoutView: View {
             Image(systemName: "clock")
                 .foregroundColor(.tuckerOrange)
 
-            Text("Delivery Time")
+            Text(orderType == .delivery ? "Delivery Time" : "Pickup Time")
                 .font(.subheadline)
 
             Spacer()
@@ -406,7 +496,22 @@ struct CheckoutView: View {
             // Price breakdown
             VStack(spacing: 10) {
                 PriceRow(title: "Subtotal", value: cartManager.totalPrice)
-                PriceRow(title: "Delivery Fee", value: deliveryFee, originalValue: 8.0)
+
+                if orderType == .delivery {
+                    PriceRow(title: "Delivery Fee", value: deliveryFee, originalValue: 8.0)
+                } else {
+                    HStack {
+                        Text("Delivery Fee")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        Spacer()
+                        Text("FREE")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.green)
+                    }
+                }
+
                 PriceRow(title: "Packaging Fee", value: packagingFee)
 
                 if couponDiscount > 0 {
@@ -429,12 +534,13 @@ struct CheckoutView: View {
             Divider()
 
             // Savings
-            if couponDiscount > 0 || deliveryFee < 8.0 {
+            let totalSavings = couponDiscount + (orderType == .pickup ? 8.0 : 3.0)
+            if totalSavings > 0 {
                 HStack {
                     Image(systemName: "tag.fill")
                         .foregroundColor(.red)
                         .font(.caption)
-                    Text("You saved $\(String(format: "%.2f", couponDiscount + 3.0)) on this order")
+                    Text("You saved $\(String(format: "%.2f", totalSavings)) on this order")
                         .font(.caption)
                         .foregroundColor(.red)
                     Spacer()
@@ -444,6 +550,13 @@ struct CheckoutView: View {
         .padding()
         .background(Color.white)
         .cornerRadius(12)
+    }
+
+    private var canSubmitOrder: Bool {
+        if orderType == .pickup {
+            return true
+        }
+        return selectedAddressId != nil
     }
 
     private var bottomBar: some View {
@@ -459,15 +572,10 @@ struct CheckoutView: View {
                 }
                 .foregroundColor(.primary)
 
-                if couponDiscount > 0 {
-                    Text("Saved $\(String(format: "%.0f", couponDiscount + 3.0))")
-                        .font(.caption2)
-                        .foregroundColor(.tuckerOrange)
-                } else {
-                    Text("Saved $3.00")
-                        .font(.caption2)
-                        .foregroundColor(.tuckerOrange)
-                }
+                let totalSavings = couponDiscount + (orderType == .pickup ? 8.0 : 3.0)
+                Text("Saved $\(String(format: "%.0f", totalSavings))")
+                    .font(.caption2)
+                    .foregroundColor(.tuckerOrange)
             }
 
             Spacer()
@@ -490,12 +598,12 @@ struct CheckoutView: View {
             .foregroundColor(.white)
             .padding(.vertical, 14)
             .background(
-                selectedAddressId != nil
+                canSubmitOrder
                     ? LinearGradient(colors: [.tuckerOrange, .red], startPoint: .leading, endPoint: .trailing)
                     : LinearGradient(colors: [.gray, .gray], startPoint: .leading, endPoint: .trailing)
             )
             .cornerRadius(22)
-            .disabled(selectedAddressId == nil || isSubmitting)
+            .disabled(!canSubmitOrder || isSubmitting)
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
@@ -515,8 +623,13 @@ struct CheckoutView: View {
     }
 
     private func submitOrder() async {
-        guard let addressId = selectedAddressId,
-              let merchantId = cartManager.merchantId else {
+        guard let merchantId = cartManager.merchantId else {
+            error = "Invalid cart"
+            return
+        }
+
+        // For delivery, require an address
+        if orderType == .delivery && selectedAddressId == nil {
             error = "Please select a delivery address"
             return
         }
@@ -525,9 +638,10 @@ struct CheckoutView: View {
         do {
             let orderResponse = try await APIService.shared.createOrder(
                 merchantId: merchantId,
-                addressId: addressId,
+                addressId: orderType == .delivery ? selectedAddressId : nil,
                 items: cartManager.items.map { OrderItemRequest(productId: $0.product.id, quantity: $0.quantity) },
-                remark: remark.isEmpty ? nil : remark
+                remark: remark.isEmpty ? nil : (orderType == .pickup ? "[PICKUP] \(remark)" : remark),
+                orderType: orderType == .pickup ? "pickup" : "delivery"
             )
             createdOrderId = orderResponse.orderId
             cartManager.clearCart()

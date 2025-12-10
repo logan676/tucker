@@ -218,21 +218,24 @@ class APIService {
 
     func createOrder(
         merchantId: String,
-        addressId: String,
+        addressId: String?,
         items: [OrderItemRequest],
-        remark: String?
+        remark: String?,
+        orderType: String = "delivery"
     ) async throws -> CreateOrderResponse {
         struct Request: Codable {
             let merchantId: String
-            let addressId: String
+            let addressId: String?
             let items: [OrderItemRequest]
             let remark: String?
+            let orderType: String
         }
         let body = try JSONEncoder().encode(Request(
             merchantId: merchantId,
             addressId: addressId,
             items: items,
-            remark: remark
+            remark: remark,
+            orderType: orderType
         ))
         return try await makeRequest(path: "/orders", method: "POST", body: body)
     }

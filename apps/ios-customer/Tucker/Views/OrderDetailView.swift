@@ -317,9 +317,7 @@ struct OrderDetailView: View {
                         .cornerRadius(22)
                 }
             } else {
-                Button {
-                    // Track order
-                } label: {
+                NavigationLink(destination: OrderTrackingView(order: order)) {
                     HStack {
                         Image(systemName: "location.circle")
                         Text("Track Order")
