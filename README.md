@@ -1,5 +1,13 @@
 # Tucker
 
+<p align="center">
+  <img src="docs/images/banner.jpeg" alt="Tucker - Aussie Eats, Delivered" width="100%">
+</p>
+
+<p align="center">
+  <strong>Find local favourites & hidden gems.</strong>
+</p>
+
 A comprehensive local life service platform providing food delivery, merchant management, and more.
 
 ## Overview
