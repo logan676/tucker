@@ -10,33 +10,39 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
+// Tucker Brand Colors
+val TuckerOrange = Color(0xFFD97706)
+val TuckerDark = Color(0xFFB45309)
+val TuckerLight = Color(0xFFFBBF24)
+val TuckerCream = Color(0xFFFEF3C7)
+
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF1976D2),
+    primary = TuckerOrange,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFBBDEFB),
-    onPrimaryContainer = Color(0xFF0D47A1),
-    secondary = Color(0xFF4CAF50),
-    onSecondary = Color.White,
-    error = Color(0xFFD32F2F),
+    primaryContainer = TuckerCream,
+    onPrimaryContainer = TuckerDark,
+    secondary = TuckerLight,
+    onSecondary = TuckerDark,
+    error = Color(0xFFDC2626),
     onError = Color.White,
-    background = Color(0xFFF5F5F5),
-    onBackground = Color(0xFF212121),
+    background = Color(0xFFFFFBEB),
+    onBackground = Color(0xFF44403C),
     surface = Color.White,
-    onSurface = Color(0xFF212121)
+    onSurface = Color(0xFF44403C)
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF90CAF9),
-    onPrimary = Color(0xFF0D47A1),
-    primaryContainer = Color(0xFF1565C0),
-    onPrimaryContainer = Color(0xFFBBDEFB),
-    secondary = Color(0xFF81C784),
-    onSecondary = Color(0xFF1B5E20),
+    primary = TuckerOrange,
+    onPrimary = Color.White,
+    primaryContainer = TuckerDark,
+    onPrimaryContainer = Color.White,
+    secondary = TuckerLight,
+    onSecondary = TuckerDark,
     error = Color(0xFFEF5350),
     onError = Color.White,
-    background = Color(0xFF121212),
+    background = Color(0xFF1C1917),
     onBackground = Color.White,
-    surface = Color(0xFF1E1E1E),
+    surface = Color(0xFF292524),
     onSurface = Color.White
 )
 

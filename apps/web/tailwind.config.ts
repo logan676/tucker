@@ -9,18 +9,31 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: '#f97316',
-          600: '#ea580c',
-          700: '#c2410c',
-          800: '#9a3412',
-          900: '#7c2d12',
+        // Tucker Brand Colors
+        tucker: {
+          orange: '#D97706',
+          dark: '#B45309',
+          light: '#FBBF24',
+          cream: '#FEF3C7',
+          'warm-white': '#FFFBEB',
         },
+        primary: {
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          200: '#FDE68A',
+          300: '#FCD34D',
+          400: '#FBBF24',
+          500: '#D97706',  // Tucker Orange
+          600: '#B45309',  // Tucker Dark
+          700: '#92400E',
+          800: '#78350F',
+          900: '#451A03',
+        },
+        // Semantic colors
+        success: '#16A34A',
+        warning: '#EAB308',
+        error: '#DC2626',
+        info: '#0EA5E9',
       },
     },
   },

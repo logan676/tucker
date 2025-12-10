@@ -1,3 +1,18 @@
+/* Tucker Brand CSS Variables */
+:root {
+  --tucker-orange: #D97706;
+  --tucker-dark: #B45309;
+  --tucker-light: #FBBF24;
+  --tucker-cream: #FEF3C7;
+  --tucker-warm-white: #FFFBEB;
+  --tucker-text: #44403C;
+  --tucker-text-secondary: #78716C;
+  --tucker-success: #16A34A;
+  --tucker-warning: #EAB308;
+  --tucker-error: #DC2626;
+  --tucker-info: #0EA5E9;
+}
+
 * {
   margin: 0;
   padding: 0;

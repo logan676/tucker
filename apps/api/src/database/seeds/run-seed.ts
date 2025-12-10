@@ -15,7 +15,7 @@ const dataSource = new DataSource({
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'tucker',
   entities: [join(__dirname, '../../**/*.entity{.ts,.js}')],
-  synchronize: false,
+  synchronize: true,
 });
 
 async function runSeed() {

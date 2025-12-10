@@ -13,6 +13,8 @@ import { SmsModule } from './modules/sms/sms.module';
 import { CouponModule } from './modules/coupon/coupon.module';
 import { MerchantOwnerModule } from './modules/merchant-owner/merchant-owner.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { BannerModule } from './modules/banner/banner.module';
+import { ReviewModule } from './modules/review/review.module';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from './config/app.config';
@@ -60,6 +62,8 @@ import smsConfig from './config/sms.config';
     CouponModule,
     MerchantOwnerModule,
     NotificationModule,
+    BannerModule,
+    ReviewModule,
   ],
 })
 export class AppModule {}
