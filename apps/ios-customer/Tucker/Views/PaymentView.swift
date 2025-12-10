@@ -132,7 +132,7 @@ struct PaymentView: View {
                     .font(.caption)
                     .foregroundColor(.gray)
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text("¥")
+                    Text("$")
                         .font(.title2)
                     Text(String(format: "%.2f", order?.payAmount ?? 0))
                         .font(.system(size: 48, weight: .bold))
@@ -507,7 +507,7 @@ struct OrderSuccessView: View {
 
                                 VStack(spacing: 12) {
                                     OrderInfoRow(label: "Order Number", value: order.orderNo)
-                                    OrderInfoRow(label: "Payment Amount", value: "¥\(String(format: "%.2f", order.payAmount))", valueColor: .tuckerOrange)
+                                    OrderInfoRow(label: "Payment Amount", value: "$\(String(format: "%.2f", order.payAmount))", valueColor: .tuckerOrange)
                                     OrderInfoRow(label: "Payment Method", value: "WeChat Pay")
                                     OrderInfoRow(label: "Order Time", value: formatDate(Date()))
                                 }

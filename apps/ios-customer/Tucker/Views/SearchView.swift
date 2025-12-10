@@ -153,7 +153,7 @@ struct SearchView: View {
                     .frame(height: 20)
 
                 // Quick filters
-                QuickFilterButton(title: "Delivery ≤¥\(Int(maxDeliveryFee))", isActive: maxDeliveryFee < 10) {
+                QuickFilterButton(title: "Delivery ≤$\(Int(maxDeliveryFee))", isActive: maxDeliveryFee < 10) {
                     showFilters = true
                 }
 
@@ -387,17 +387,17 @@ struct SearchMerchantCard: View {
                     }
                     .foregroundColor(.gray)
 
-                    Text("¥\(Int(merchant.deliveryFee)) delivery")
+                    Text("$\(Int(merchant.deliveryFee)) delivery")
                         .font(.caption)
                         .foregroundColor(.gray)
 
-                    Text("Min ¥\(Int(merchant.minOrderAmount))")
+                    Text("Min $\(Int(merchant.minOrderAmount))")
                         .font(.caption)
                         .foregroundColor(.gray)
                 }
 
                 HStack(spacing: 4) {
-                    Text("New Customer -¥5")
+                    Text("New Customer -$5")
                         .font(.caption2)
                         .foregroundColor(.red)
                         .padding(.horizontal, 4)
@@ -427,7 +427,7 @@ struct FilterSheet: View {
             List {
                 Section("Delivery Fee") {
                     VStack(alignment: .leading) {
-                        Text("Max ¥\(Int(maxDeliveryFee))")
+                        Text("Max $\(Int(maxDeliveryFee))")
                             .font(.subheadline)
                         Slider(value: $maxDeliveryFee, in: 0...20, step: 1)
                             .tint(.tuckerOrange)

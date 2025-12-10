@@ -14,6 +14,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ImportMerchantRowDto, ImportResultDto } from './dto/import-merchants.dto';
 import { PaginatedResult } from '@/common/dto/pagination.dto';
 import { BusinessException } from '@/common/exceptions/business.exception';
 import { ErrorCodes } from '@/common/constants/error-codes';
@@ -307,5 +308,116 @@ export class AdminService {
     });
 
     return this.productCategoryRepository.save(category);
+  }
+
+  // Import Merchants from Excel data
+  async importMerchants(merchants: ImportMerchantRowDto[]): Promise<ImportResultDto> {
+    const result: ImportResultDto = {
+      success: 0,
+      failed: 0,
+      errors: [],
+      createdMerchants: [],
+    };
+
+    // Get all categories for matching
+    const categories = await this.categoryRepository.find();
+    const categoryMap = new Map<string, string>();
+    categories.forEach((cat) => {
+      categoryMap.set(cat.name.toLowerCase(), cat.id);
+    });
+
+    for (let i = 0; i < merchants.length; i++) {
+      const row = merchants[i];
+      const rowNumber = i + 2; // Excel row (1-indexed, plus header row)
+
+      try {
+        // Validate ABN uniqueness (could add ABN field to merchant entity)
+        // For now, check by name
+        const existing = await this.merchantRepository.findOne({
+          where: { name: row.businessName },
+        });
+
+        if (existing) {
+          result.failed++;
+          result.errors.push({
+            row: rowNumber,
+            businessName: row.businessName,
+            error: 'Merchant with this name already exists',
+          });
+          continue;
+        }
+
+        // Find category
+        const categoryId = categoryMap.get(row.categoryName.toLowerCase());
+        if (!categoryId) {
+          result.failed++;
+          result.errors.push({
+            row: rowNumber,
+            businessName: row.businessName,
+            error: `Category "${row.categoryName}" not found`,
+          });
+          continue;
+        }
+
+        // Create merchant
+        const merchant = this.merchantRepository.create({
+          name: row.businessName,
+          description: row.description,
+          phone: row.contactPhone,
+          categoryId,
+          province: row.province,
+          city: row.city,
+          district: row.district,
+          address: row.address,
+          longitude: row.longitude,
+          latitude: row.latitude,
+          deliveryFee: row.deliveryFee ?? 5,
+          minOrderAmount: row.minOrderAmount ?? 20,
+          status: MerchantStatus.ACTIVE,
+          isOpen: false, // Default to closed, merchant will open manually
+        });
+
+        const saved = await this.merchantRepository.save(merchant);
+
+        result.success++;
+        result.createdMerchants.push({
+          id: saved.id,
+          name: saved.name,
+        });
+      } catch (error) {
+        result.failed++;
+        result.errors.push({
+          row: rowNumber,
+          businessName: row.businessName,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
+
+    return result;
+  }
+
+  // Generate import template data
+  getImportTemplate(): object[] {
+    return [
+      {
+        businessName: 'Example Restaurant',
+        abn: '12 345 678 901',
+        foodSafetyCertNumber: 'FSC-123456',
+        categoryName: 'Chinese',
+        contactName: 'John Doe',
+        contactPhone: '0412345678',
+        contactEmail: 'john@example.com',
+        province: 'Queensland',
+        city: 'Brisbane',
+        district: 'CBD',
+        address: '123 Queen Street',
+        longitude: 153.0251,
+        latitude: -27.4698,
+        description: 'A great restaurant',
+        deliveryFee: 5,
+        minOrderAmount: 20,
+      },
+    ];
   }
 }

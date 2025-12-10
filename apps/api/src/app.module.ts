@@ -15,6 +15,8 @@ import { MerchantOwnerModule } from './modules/merchant-owner/merchant-owner.mod
 import { NotificationModule } from './modules/notification/notification.module';
 import { BannerModule } from './modules/banner/banner.module';
 import { ReviewModule } from './modules/review/review.module';
+import { UploadModule } from './modules/upload/upload.module';
+import { MerchantApplicationModule } from './modules/merchant-application/merchant-application.module';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import appConfig from './config/app.config';
@@ -50,6 +52,7 @@ import smsConfig from './config/sms.config';
     // Core modules
     RedisModule,
     SmsModule,
+    UploadModule,
 
     // Feature modules
     AuthModule,
@@ -64,6 +67,7 @@ import smsConfig from './config/sms.config';
     NotificationModule,
     BannerModule,
     ReviewModule,
+    MerchantApplicationModule,
   ],
 })
 export class AppModule {}

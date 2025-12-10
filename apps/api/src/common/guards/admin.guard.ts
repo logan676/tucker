@@ -6,10 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-
-// For now, we'll use a simple admin check based on a hardcoded admin phone list
-// In production, this should be based on user roles stored in the database
-const ADMIN_PHONES = ['13800138000', '13900139000', '18888888888'];
+import { UserRole } from '../../modules/user/entities/user.entity';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -33,8 +30,8 @@ export class AdminGuard implements CanActivate {
       throw new ForbiddenException('Admin access required');
     }
 
-    // Check if user is an admin
-    if (!ADMIN_PHONES.includes(user.phone)) {
+    // Check if user has admin role
+    if (user.role !== UserRole.ADMIN) {
       throw new ForbiddenException('Admin access required');
     }
 

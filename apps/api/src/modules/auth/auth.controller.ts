@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { SendSmsDto, SendSmsResponseDto } from './dto/send-sms.dto';
 import { PhoneLoginDto, LoginResponseDto } from './dto/phone-login.dto';
 import { RefreshTokenDto, RefreshTokenResponseDto } from './dto/refresh-token.dto';
+import { AdminLoginDto, AdminLoginResponseDto } from './dto/admin-login.dto';
 import { Public } from '@/common/decorators/public.decorator';
 
 @ApiTags('Auth')
@@ -25,6 +26,14 @@ export class AuthController {
   @ApiResponse({ status: 200, type: LoginResponseDto })
   async phoneLogin(@Body() dto: PhoneLoginDto): Promise<LoginResponseDto> {
     return this.authService.phoneLogin(dto);
+  }
+
+  @Public()
+  @Post('login/admin')
+  @ApiOperation({ summary: 'Admin login with email and password' })
+  @ApiResponse({ status: 200, type: AdminLoginResponseDto })
+  async adminLogin(@Body() dto: AdminLoginDto): Promise<AdminLoginResponseDto> {
+    return this.authService.adminLogin(dto);
   }
 
   @Public()

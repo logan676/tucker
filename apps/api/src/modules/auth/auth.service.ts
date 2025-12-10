@@ -3,10 +3,12 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../user/entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import { User, UserRole } from '../user/entities/user.entity';
 import { SendSmsDto, SendSmsResponseDto } from './dto/send-sms.dto';
 import { PhoneLoginDto, LoginResponseDto, UserDto } from './dto/phone-login.dto';
 import { RefreshTokenDto, RefreshTokenResponseDto } from './dto/refresh-token.dto';
+import { AdminLoginDto, AdminLoginResponseDto, AdminUserDto } from './dto/admin-login.dto';
 import { BusinessException } from '@/common/exceptions/business.exception';
 import { ErrorCodes } from '@/common/constants/error-codes';
 import { RedisService } from '@/modules/redis/redis.service';
@@ -203,5 +205,74 @@ export class AuthService {
       name: user.name,
       avatar: user.avatar,
     };
+  }
+
+  // Admin login with email and password
+  async adminLogin(dto: AdminLoginDto): Promise<AdminLoginResponseDto> {
+    // Find user by email with password field
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.email = :email', { email: dto.email })
+      .getOne();
+
+    if (!user) {
+      throw new BusinessException(
+        ErrorCodes.USER_NOT_FOUND,
+        'Invalid email or password',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    // Check if user is admin
+    if (user.role !== UserRole.ADMIN) {
+      throw new BusinessException(
+        ErrorCodes.FORBIDDEN,
+        'Access denied. Admin privileges required.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    // Check password
+    if (!user.password) {
+      throw new BusinessException(
+        ErrorCodes.USER_NOT_FOUND,
+        'Password not set for this account',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    if (!isPasswordValid) {
+      throw new BusinessException(
+        ErrorCodes.USER_NOT_FOUND,
+        'Invalid email or password',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    // Generate tokens
+    const tokens = await this.generateTokens(user);
+
+    return {
+      ...tokens,
+      user: this.formatAdminUser(user),
+    };
+  }
+
+  private formatAdminUser(user: User): AdminUserDto {
+    return {
+      id: user.id,
+      email: user.email || '',
+      name: user.name,
+      avatar: user.avatar,
+      role: user.role,
+    };
+  }
+
+  // Hash password utility
+  async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    return bcrypt.hash(password, saltRounds);
   }
 }

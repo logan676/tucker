@@ -26,7 +26,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       });
     }
 
-    this.client.on('error', (err) => {
+    this.client.on('error', (err: Error) => {
       console.error('Redis connection error:', err);
     });
 

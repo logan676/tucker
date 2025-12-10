@@ -5,6 +5,8 @@ import LoginPage from './pages/login'
 import DashboardPage from './pages/dashboard'
 import MerchantsPage from './pages/merchants'
 import MerchantDetailPage from './pages/merchants/detail'
+import ApplicationsPage from './pages/applications'
+import ApplicationDetailPage from './pages/applications/detail'
 import OrdersPage from './pages/orders'
 import UsersPage from './pages/users'
 import ProductsPage from './pages/products'
@@ -32,6 +34,8 @@ function App() {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="merchants" element={<MerchantsPage />} />
         <Route path="merchants/:id" element={<MerchantDetailPage />} />
+        <Route path="applications" element={<ApplicationsPage />} />
+        <Route path="applications/:id" element={<ApplicationDetailPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="products" element={<ProductsPage />} />

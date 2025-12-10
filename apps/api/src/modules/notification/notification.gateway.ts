@@ -50,10 +50,11 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
       client.userId = payload.sub;
 
       // Add to user sockets map
-      if (!this.userSockets.has(client.userId)) {
-        this.userSockets.set(client.userId, new Set());
+      const userId = client.userId!;
+      if (!this.userSockets.has(userId)) {
+        this.userSockets.set(userId, new Set());
       }
-      this.userSockets.get(client.userId)!.add(client.id);
+      this.userSockets.get(userId)!.add(client.id);
 
       // Join user-specific room
       client.join(`user:${client.userId}`);

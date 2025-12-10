@@ -143,9 +143,9 @@ export class MerchantOwnerService {
     // Validate status transition
     const validTransitions: Record<OrderStatus, OrderStatus[]> = {
       [OrderStatus.PENDING_PAYMENT]: [],
-      [OrderStatus.PENDING_CONFIRM]: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
-      [OrderStatus.PREPARING]: [OrderStatus.READY],
-      [OrderStatus.READY]: [OrderStatus.DELIVERING],
+      [OrderStatus.PENDING_CONFIRM]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
+      [OrderStatus.CONFIRMED]: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
+      [OrderStatus.PREPARING]: [OrderStatus.DELIVERING],
       [OrderStatus.DELIVERING]: [OrderStatus.COMPLETED],
       [OrderStatus.COMPLETED]: [],
       [OrderStatus.CANCELLED]: [],

@@ -12,6 +12,7 @@ import {
   ShoppingOutlined,
   GiftOutlined,
   SettingOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons'
 import { useAuthStore } from '@/stores/auth'
 
@@ -22,6 +23,11 @@ const menuItems = [
     key: '/dashboard',
     icon: <DashboardOutlined />,
     label: 'Dashboard',
+  },
+  {
+    key: '/applications',
+    icon: <FileTextOutlined />,
+    label: 'Applications',
   },
   {
     key: '/merchants',
