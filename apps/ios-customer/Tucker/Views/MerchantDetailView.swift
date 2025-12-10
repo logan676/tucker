@@ -9,6 +9,8 @@ struct MerchantDetailView: View {
     @State private var selectedCategory: String?
     @State private var isLoading = true
     @State private var showDeliveryOptions = false
+    @State private var isFavorite = false
+    @State private var reviewStats: ReviewStats?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -130,13 +132,24 @@ struct MerchantDetailView: View {
                         }
 
                         HStack(spacing: 12) {
-                            // Rating
-                            HStack(spacing: 2) {
-                                Text("Rating")
-                                    .foregroundColor(.gray)
-                                Text(String(format: "%.1f", merchant.rating))
-                                    .foregroundColor(.tuckerOrange)
-                                    .fontWeight(.bold)
+                            // Rating with navigation to reviews
+                            NavigationLink {
+                                ReviewsView(merchantId: merchantId)
+                            } label: {
+                                HStack(spacing: 2) {
+                                    Image(systemName: "star.fill")
+                                        .foregroundColor(.tuckerOrange)
+                                    Text(String(format: "%.1f", merchant.rating))
+                                        .foregroundColor(.tuckerOrange)
+                                        .fontWeight(.bold)
+                                    if let stats = reviewStats {
+                                        Text("(\(stats.totalReviews))")
+                                            .foregroundColor(.gray)
+                                    }
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                        .font(.system(size: 10))
+                                }
                             }
 
                             // Monthly Sales
@@ -160,9 +173,14 @@ struct MerchantDetailView: View {
 
                     Spacer()
 
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.gray)
-                        .font(.caption)
+                    // Favorite button
+                    Button {
+                        Task { await toggleFavorite() }
+                    } label: {
+                        Image(systemName: isFavorite ? "heart.fill" : "heart")
+                            .font(.title2)
+                            .foregroundColor(isFavorite ? .red : .gray)
+                    }
                 }
                 .padding()
             }
@@ -170,14 +188,30 @@ struct MerchantDetailView: View {
         .background(Color.white)
     }
 
+    private func toggleFavorite() async {
+        let wasFavorite = isFavorite
+        isFavorite.toggle() // Optimistic update
+
+        do {
+            if wasFavorite {
+                try await APIService.shared.removeFavorite(merchantId: merchantId)
+            } else {
+                _ = try await APIService.shared.addFavorite(merchantId: merchantId)
+            }
+        } catch {
+            isFavorite = wasFavorite // Revert on error
+            print("Error toggling favorite: \(error)")
+        }
+    }
+
     // MARK: - Deals Section
     private var dealsSection: some View {
         VStack(spacing: 8) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    DealBadge(icon: "bolt.fill", text: "¥13 off ¥57", color: .red)
-                    DealBadge(icon: "star.fill", text: "¥3 review bonus", color: .tuckerOrange)
-                    DealBadge(icon: "ticket.fill", text: "¥2 coupon", color: .green)
+                    DealBadge(icon: "bolt.fill", text: "$8 off $40+", color: .red)
+                    DealBadge(icon: "star.fill", text: "$3 review reward", color: .tuckerOrange)
+                    DealBadge(icon: "ticket.fill", text: "15% off code", color: .green)
                     DealBadge(icon: "gift.fill", text: "Free delivery", color: .blue)
                 }
                 .padding(.horizontal)
@@ -213,7 +247,7 @@ struct MerchantDetailView: View {
                         .fontWeight(showDeliveryOptions ? .bold : .regular)
                         .foregroundColor(showDeliveryOptions ? .primary : .gray)
 
-                    Text("New -¥4")
+                    Text("New -$4")
                         .font(.caption2)
                         .foregroundColor(.white)
                         .padding(.horizontal, 4)
@@ -304,11 +338,15 @@ struct MerchantDetailView: View {
         do {
             async let merchantResult = APIService.shared.getMerchant(id: merchantId)
             async let menuResult = APIService.shared.getMerchantMenu(merchantId: merchantId)
+            async let favoriteResult = APIService.shared.isFavorite(merchantId: merchantId)
+            async let statsResult = APIService.shared.getMerchantReviewStats(merchantId: merchantId)
 
-            let (merch, menuData) = try await (merchantResult, menuResult)
+            let (merch, menuData, favorite, stats) = try await (merchantResult, menuResult, favoriteResult, statsResult)
             merchant = merch
             menu = menuData
             selectedCategory = menuData.categories.first?.id
+            isFavorite = favorite
+            reviewStats = stats
         } catch {
             print("Error loading merchant: \(error)")
         }
@@ -342,6 +380,12 @@ struct ProductRow: View {
     let product: Product
     let merchantId: String
     @EnvironmentObject var cartManager: CartManager
+    @State private var showOptionsSheet = false
+
+    private var hasOptions: Bool {
+        guard let options = product.options else { return false }
+        return !options.isEmpty
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -381,14 +425,22 @@ struct ProductRow: View {
                         .lineLimit(2)
                 }
 
-                Text("\(product.monthlySales) sold")
-                    .font(.caption2)
-                    .foregroundColor(.gray)
+                HStack(spacing: 4) {
+                    Text("\(product.monthlySales) sold")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+
+                    if hasOptions {
+                        Text("Options available")
+                            .font(.caption2)
+                            .foregroundColor(.tuckerOrange)
+                    }
+                }
 
                 HStack {
                     // Price
                     HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text("¥")
+                        Text("$")
                             .font(.caption)
                             .foregroundColor(.red)
                         Text("\(Int(product.price))")
@@ -396,7 +448,7 @@ struct ProductRow: View {
                             .foregroundColor(.red)
 
                         if let originalPrice = product.originalPrice, originalPrice > product.price {
-                            Text("¥\(Int(originalPrice))")
+                            Text("$\(Int(originalPrice))")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .strikethrough()
@@ -432,8 +484,12 @@ struct ProductRow: View {
                         }
 
                         Button {
-                            withAnimation(.spring(response: 0.3)) {
-                                cartManager.addItem(product, merchantId: merchantId)
+                            if hasOptions {
+                                showOptionsSheet = true
+                            } else {
+                                withAnimation(.spring(response: 0.3)) {
+                                    cartManager.addItem(product, merchantId: merchantId)
+                                }
                             }
                         } label: {
                             Image(systemName: "plus")
@@ -449,6 +505,20 @@ struct ProductRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+        .sheet(isPresented: $showOptionsSheet) {
+            ProductOptionsSheet(
+                product: product,
+                merchantId: merchantId
+            ) { product, quantity, options, optionPrice in
+                cartManager.addItemWithOptions(
+                    product,
+                    merchantId: merchantId,
+                    quantity: quantity,
+                    options: options,
+                    optionPrice: optionPrice
+                )
+            }
+        }
     }
 }
 
@@ -484,7 +554,7 @@ struct CartBar: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text("¥")
+                    Text("$")
                         .font(.caption)
                     Text(String(format: "%.0f", cartManager.totalPrice))
                         .font(.title2)
@@ -492,7 +562,7 @@ struct CartBar: View {
                 }
                 .foregroundColor(.white)
 
-                Text("Delivery fee ¥5")
+                Text("Delivery fee $5")
                     .font(.caption2)
                     .foregroundColor(.gray)
             }

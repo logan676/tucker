@@ -16,9 +16,15 @@ struct CheckoutView: View {
     @State private var navigateToPayment = false
     @State private var selectedDeliveryTime = "Now"
     @State private var showCouponSheet = false
+    @State private var selectedCoupon: Coupon?
+    @State private var couponDiscount: Double = 0
 
     let deliveryFee: Double = 5.0
     let packagingFee: Double = 2.0
+
+    var totalAmount: Double {
+        cartManager.totalPrice + deliveryFee + packagingFee - couponDiscount
+    }
 
     var body: some View {
         NavigationStack {
@@ -270,7 +276,7 @@ struct CheckoutView: View {
                             .lineLimit(2)
 
                         HStack(alignment: .firstTextBaseline, spacing: 2) {
-                            Text("¥")
+                            Text("$")
                                 .font(.caption)
                             Text("\(Int(item.product.price))")
                                 .font(.subheadline)
@@ -331,9 +337,21 @@ struct CheckoutView: View {
 
                 Spacer()
 
-                Text("Select coupon")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+                if let coupon = selectedCoupon {
+                    HStack(spacing: 4) {
+                        Text(coupon.name)
+                            .font(.caption)
+                            .foregroundColor(.tuckerOrange)
+                        Text("-$\(String(format: "%.0f", couponDiscount))")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.red)
+                    }
+                } else {
+                    Text("Select coupon")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
 
                 Image(systemName: "chevron.right")
                     .font(.caption)
@@ -342,6 +360,15 @@ struct CheckoutView: View {
             .padding()
             .background(Color.white)
             .cornerRadius(12)
+        }
+        .sheet(isPresented: $showCouponSheet) {
+            CouponSheet(
+                merchantId: cartManager.merchantId,
+                orderAmount: cartManager.totalPrice
+            ) { coupon, discount in
+                selectedCoupon = coupon
+                couponDiscount = discount
+            }
         }
     }
 
@@ -381,19 +408,37 @@ struct CheckoutView: View {
                 PriceRow(title: "Subtotal", value: cartManager.totalPrice)
                 PriceRow(title: "Delivery Fee", value: deliveryFee, originalValue: 8.0)
                 PriceRow(title: "Packaging Fee", value: packagingFee)
+
+                if couponDiscount > 0 {
+                    HStack {
+                        HStack(spacing: 4) {
+                            Image(systemName: "ticket.fill")
+                                .font(.caption2)
+                            Text("Coupon Discount")
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.green)
+                        Spacer()
+                        Text("-$\(String(format: "%.2f", couponDiscount))")
+                            .font(.subheadline)
+                            .foregroundColor(.green)
+                    }
+                }
             }
 
             Divider()
 
             // Savings
-            HStack {
-                Image(systemName: "tag.fill")
-                    .foregroundColor(.red)
-                    .font(.caption)
-                Text("You saved ¥3.00 on this order")
-                    .font(.caption)
-                    .foregroundColor(.red)
-                Spacer()
+            if couponDiscount > 0 || deliveryFee < 8.0 {
+                HStack {
+                    Image(systemName: "tag.fill")
+                        .foregroundColor(.red)
+                        .font(.caption)
+                    Text("You saved $\(String(format: "%.2f", couponDiscount + 3.0)) on this order")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                    Spacer()
+                }
             }
         }
         .padding()
@@ -406,17 +451,23 @@ struct CheckoutView: View {
             // Price section
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text("¥")
+                    Text("$")
                         .font(.subheadline)
-                    Text(String(format: "%.0f", cartManager.totalPrice + deliveryFee + packagingFee))
+                    Text(String(format: "%.0f", totalAmount))
                         .font(.title2)
                         .fontWeight(.bold)
                 }
                 .foregroundColor(.primary)
 
-                Text("Saved ¥3.00")
-                    .font(.caption2)
-                    .foregroundColor(.tuckerOrange)
+                if couponDiscount > 0 {
+                    Text("Saved $\(String(format: "%.0f", couponDiscount + 3.0))")
+                        .font(.caption2)
+                        .foregroundColor(.tuckerOrange)
+                } else {
+                    Text("Saved $3.00")
+                        .font(.caption2)
+                        .foregroundColor(.tuckerOrange)
+                }
             }
 
             Spacer()
@@ -515,13 +566,13 @@ struct PriceRow: View {
             Spacer()
 
             if let original = originalValue, original > value {
-                Text("¥\(String(format: "%.0f", original))")
+                Text("$\(String(format: "%.0f", original))")
                     .font(.caption)
                     .foregroundColor(.gray)
                     .strikethrough()
             }
 
-            Text("¥\(String(format: "%.2f", value))")
+            Text("$\(String(format: "%.2f", value))")
                 .font(.subheadline)
         }
     }

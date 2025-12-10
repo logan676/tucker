@@ -446,7 +446,7 @@ struct FlashDealCard: View {
                 .lineLimit(1)
 
             HStack(spacing: 2) {
-                Text("¥\(Int(merchant.minOrderAmount))")
+                Text("$\(Int(merchant.minOrderAmount))")
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundColor(.red)
@@ -461,6 +461,7 @@ struct FlashDealCard: View {
 
 struct MerchantCard: View {
     let merchant: Merchant
+    @State private var isFavorite = false
 
     var body: some View {
         HStack(spacing: 12) {
@@ -504,7 +505,7 @@ struct MerchantCard: View {
                             .font(.caption)
                             .fontWeight(.medium)
                     }
-                    Text("\(merchant.monthlySales)+ sold/month")
+                    Text("\(merchant.monthlySales)+ orders")
                         .foregroundColor(.tuckerTextSecondary)
                         .font(.caption)
                 }
@@ -519,25 +520,65 @@ struct MerchantCard: View {
                     }
                     .foregroundColor(.tuckerTextSecondary)
 
-                    Text("Delivery ¥\(Int(merchant.deliveryFee))")
+                    Text("Delivery $\(Int(merchant.deliveryFee))")
                         .font(.caption)
                         .foregroundColor(.tuckerTextSecondary)
 
-                    Text("Min ¥\(Int(merchant.minOrderAmount))")
+                    Text("Min $\(Int(merchant.minOrderAmount))")
                         .font(.caption)
                         .foregroundColor(.tuckerTextSecondary)
                 }
 
                 // Tags
                 HStack(spacing: 4) {
-                    DealTag(text: "New Customer -¥5", color: .red)
+                    DealTag(text: "New Customer -$5", color: .red)
                     DealTag(text: "Free Delivery", color: .tuckerOrange)
                 }
             }
 
             Spacer()
+
+            // Favorite button
+            Button {
+                toggleFavorite()
+            } label: {
+                Image(systemName: isFavorite ? "heart.fill" : "heart")
+                    .font(.title3)
+                    .foregroundColor(isFavorite ? .red : .gray)
+            }
+            .buttonStyle(PlainButtonStyle())
         }
         .padding()
+        .task {
+            await checkFavoriteStatus()
+        }
+    }
+
+    private func checkFavoriteStatus() async {
+        do {
+            isFavorite = try await APIService.shared.isFavorite(merchantId: merchant.id)
+        } catch {
+            // Silently fail - user might not be logged in
+        }
+    }
+
+    private func toggleFavorite() {
+        let wasFavorite = isFavorite
+        isFavorite.toggle()
+
+        Task {
+            do {
+                if wasFavorite {
+                    try await APIService.shared.removeFavorite(merchantId: merchant.id)
+                } else {
+                    _ = try await APIService.shared.addFavorite(merchantId: merchant.id)
+                }
+            } catch {
+                await MainActor.run {
+                    isFavorite = wasFavorite
+                }
+            }
+        }
     }
 }
 

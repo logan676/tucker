@@ -124,6 +124,15 @@ class APIService {
         return try await makeRequest(path: "/users/me")
     }
 
+    func updateUserProfile(name: String?, avatar: String?) async throws -> User {
+        struct Request: Codable {
+            let name: String?
+            let avatar: String?
+        }
+        let body = try JSONEncoder().encode(Request(name: name, avatar: avatar))
+        return try await makeRequest(path: "/users/me", method: "PUT", body: body)
+    }
+
     // MARK: - Addresses
 
     func getAddresses() async throws -> [Address] {
@@ -161,6 +170,48 @@ class APIService {
             isDefault: isDefault
         ))
         return try await makeRequest(path: "/users/me/addresses", method: "POST", body: body)
+    }
+
+    func updateAddress(
+        id: String,
+        label: String?,
+        name: String,
+        phone: String,
+        province: String,
+        city: String,
+        district: String,
+        detail: String,
+        isDefault: Bool
+    ) async throws -> Address {
+        struct Request: Codable {
+            let label: String?
+            let name: String
+            let phone: String
+            let province: String
+            let city: String
+            let district: String
+            let detail: String
+            let isDefault: Bool
+        }
+        let body = try JSONEncoder().encode(Request(
+            label: label,
+            name: name,
+            phone: phone,
+            province: province,
+            city: city,
+            district: district,
+            detail: detail,
+            isDefault: isDefault
+        ))
+        return try await makeRequest(path: "/users/me/addresses/\(id)", method: "PUT", body: body)
+    }
+
+    func deleteAddress(id: String) async throws {
+        let _: EmptyResponse = try await makeRequest(path: "/users/me/addresses/\(id)", method: "DELETE")
+    }
+
+    func setDefaultAddress(id: String) async throws -> Address {
+        return try await makeRequest(path: "/users/me/addresses/\(id)/default", method: "POST")
     }
 
     // MARK: - Orders
@@ -231,4 +282,103 @@ struct PaymentResponse: Codable {
 struct MockPaymentResponse: Codable {
     let message: String
     let status: String
+}
+
+// MARK: - Coupon Requests
+extension APIService {
+    func getAvailableCoupons(merchantId: String? = nil, orderAmount: Double? = nil) async throws -> [Coupon] {
+        var path = "/coupons?"
+        if let merchantId = merchantId {
+            path += "merchantId=\(merchantId)&"
+        }
+        if let amount = orderAmount {
+            path += "orderAmount=\(amount)&"
+        }
+        return try await makeRequest(path: path)
+    }
+
+    func validateCoupon(code: String, merchantId: String, orderAmount: Double) async throws -> ValidateCouponResponse {
+        struct Request: Codable {
+            let code: String
+            let merchantId: String
+            let orderAmount: Double
+        }
+        let body = try JSONEncoder().encode(Request(
+            code: code,
+            merchantId: merchantId,
+            orderAmount: orderAmount
+        ))
+        return try await makeRequest(path: "/coupons/validate", method: "POST", body: body)
+    }
+}
+
+// MARK: - Reviews
+extension APIService {
+    func getMerchantReviews(merchantId: String, page: Int = 1, limit: Int = 10) async throws -> ReviewsResponse {
+        return try await makeRequest(path: "/reviews/merchant/\(merchantId)?page=\(page)&limit=\(limit)")
+    }
+
+    func getMerchantReviewStats(merchantId: String) async throws -> ReviewStats {
+        return try await makeRequest(path: "/reviews/merchant/\(merchantId)/stats")
+    }
+
+    func createReview(
+        merchantId: String,
+        orderId: String,
+        rating: Double,
+        content: String?,
+        tasteRating: Int,
+        packagingRating: Int,
+        deliveryRating: Int,
+        isAnonymous: Bool
+    ) async throws -> Review {
+        struct Request: Codable {
+            let merchantId: String
+            let orderId: String
+            let rating: Double
+            let content: String?
+            let tasteRating: Int
+            let packagingRating: Int
+            let deliveryRating: Int
+            let isAnonymous: Bool
+        }
+        let body = try JSONEncoder().encode(Request(
+            merchantId: merchantId,
+            orderId: orderId,
+            rating: rating,
+            content: content,
+            tasteRating: tasteRating,
+            packagingRating: packagingRating,
+            deliveryRating: deliveryRating,
+            isAnonymous: isAnonymous
+        ))
+        return try await makeRequest(path: "/reviews", method: "POST", body: body)
+    }
+
+    func likeReview(reviewId: String) async throws {
+        let _: EmptyResponse = try await makeRequest(path: "/reviews/\(reviewId)/like", method: "POST")
+    }
+}
+
+// MARK: - Favorites
+extension APIService {
+    func getFavorites() async throws -> [Favorite] {
+        return try await makeRequest(path: "/users/me/favorites")
+    }
+
+    func addFavorite(merchantId: String) async throws -> Favorite {
+        struct Request: Codable { let merchantId: String }
+        let body = try JSONEncoder().encode(Request(merchantId: merchantId))
+        return try await makeRequest(path: "/users/me/favorites", method: "POST", body: body)
+    }
+
+    func removeFavorite(merchantId: String) async throws {
+        let _: EmptyResponse = try await makeRequest(path: "/users/me/favorites/\(merchantId)", method: "DELETE")
+    }
+
+    func isFavorite(merchantId: String) async throws -> Bool {
+        struct Response: Codable { let isFavorite: Bool }
+        let result: Response = try await makeRequest(path: "/users/me/favorites/\(merchantId)/check")
+        return result.isFavorite
+    }
 }
