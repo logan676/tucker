@@ -9,6 +9,18 @@ struct Category: Codable, Identifiable {
     let createdAt: String?
 }
 
+struct BannerItem: Codable, Identifiable {
+    let id: String
+    let title: String
+    let subtitle: String?
+    let imageUrl: String
+    let type: String
+    let actionType: String?
+    let actionValue: String?
+    let sortOrder: Int
+    let isActive: Bool
+}
+
 struct Merchant: Codable, Identifiable {
     let id: String
     let name: String
@@ -22,27 +34,39 @@ struct Merchant: Codable, Identifiable {
     let minOrderAmount: Double
     let deliveryFee: Double
     let deliveryTime: String?
-    let distance: String?
+    let distance: Int?
     let features: [String]?
     let status: String?
 
     var isOpen: Bool {
         status == "open"
     }
+
+    var distanceText: String {
+        guard let dist = distance else { return "" }
+        if dist < 1000 {
+            return "\(dist)m"
+        } else {
+            return String(format: "%.1fkm", Double(dist) / 1000.0)
+        }
+    }
 }
 
 struct Product: Codable, Identifiable {
     let id: String
-    let merchantId: String
-    let categoryId: String?
     let name: String
     let description: String?
     let image: String?
     let price: Double
     let originalPrice: Double?
     let monthlySales: Int
+    let likes: Int?
     let isAvailable: Bool
-    let isRecommend: Bool
+
+    // Optional fields that may not always be present
+    let merchantId: String?
+    let categoryId: String?
+    let isRecommend: Bool?
 }
 
 struct ProductCategory: Codable, Identifiable {

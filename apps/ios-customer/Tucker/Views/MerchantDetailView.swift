@@ -51,8 +51,9 @@ struct MerchantDetailView: View {
 
     // MARK: - Banner Section
     private var bannerSection: some View {
-        ZStack(alignment: .bottomLeading) {
-            AsyncImage(url: URL(string: merchant?.banner ?? "")) { image in
+        let bannerUrl = merchant?.banner ?? merchant?.logo?.replacingOccurrences(of: "w=200", with: "w=800&h=300&fit=crop")
+        return ZStack(alignment: .bottomLeading) {
+            AsyncImage(url: URL(string: bannerUrl ?? "")) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
                 LinearGradient(
@@ -354,7 +355,7 @@ struct ProductRow: View {
                 .frame(width: 90, height: 90)
                 .cornerRadius(8)
 
-                if product.isRecommend {
+                if product.isRecommend == true {
                     Text("HOT")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundColor(.white)

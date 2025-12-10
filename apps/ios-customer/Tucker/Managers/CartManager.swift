@@ -18,14 +18,16 @@ class CartManager: ObservableObject {
         items.reduce(0) { $0 + $1.product.price * Double($1.quantity) }
     }
 
-    func addItem(_ product: Product) {
+    func addItem(_ product: Product, merchantId newMerchantId: String? = nil) {
+        let productMerchantId = newMerchantId ?? product.merchantId
+
         // Check if adding from a different merchant
-        if let currentMerchantId = merchantId, currentMerchantId != product.merchantId {
+        if let currentMerchantId = merchantId, currentMerchantId != productMerchantId {
             // Clear cart if different merchant
             items.removeAll()
         }
 
-        merchantId = product.merchantId
+        merchantId = productMerchantId
 
         if let index = items.firstIndex(where: { $0.product.id == product.id }) {
             items[index].quantity += 1

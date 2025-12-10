@@ -11,7 +11,7 @@ enum APIError: Error {
 class APIService {
     static let shared = APIService()
 
-    private let baseURL = "http://localhost:3000/api/v1"
+    private let baseURL = "http://127.0.0.1:3000/api/v1"
     private var token: String?
 
     private init() {}
@@ -84,8 +84,20 @@ class APIService {
         return try await makeRequest(path: "/merchants/categories")
     }
 
-    func getMerchants(page: Int = 1, pageSize: Int = 20) async throws -> PaginatedResponse<Merchant> {
-        return try await makeRequest(path: "/merchants?page=\(page)&pageSize=\(pageSize)")
+    func getBanners(type: String? = nil) async throws -> [BannerItem] {
+        var path = "/banners"
+        if let type = type {
+            path += "?type=\(type)"
+        }
+        return try await makeRequest(path: path)
+    }
+
+    func getMerchants(page: Int = 1, pageSize: Int = 20, latitude: Double? = nil, longitude: Double? = nil) async throws -> PaginatedResponse<Merchant> {
+        var path = "/merchants?page=\(page)&pageSize=\(pageSize)"
+        if let lat = latitude, let lng = longitude {
+            path += "&lat=\(lat)&lng=\(lng)"
+        }
+        return try await makeRequest(path: path)
     }
 
     func getMerchant(id: String) async throws -> Merchant {

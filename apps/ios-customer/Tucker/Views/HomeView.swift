@@ -1,17 +1,13 @@
 import SwiftUI
 
 struct HomeView: View {
+    @StateObject private var locationManager = LocationManager.shared
     @State private var categories: [Category] = []
     @State private var merchants: [Merchant] = []
+    @State private var banners: [BannerItem] = []
     @State private var isLoading = true
     @State private var searchText = ""
-    @State private var selectedLocation = "Shenzhen"
-
-    private let banners = [
-        Banner(id: "1", image: "https://picsum.photos/seed/banner1/800/300", title: "New User Discount"),
-        Banner(id: "2", image: "https://picsum.photos/seed/banner2/800/300", title: "Free Delivery"),
-        Banner(id: "3", image: "https://picsum.photos/seed/banner3/800/300", title: "Weekend Special"),
-    ]
+    @State private var currentBannerIndex = 0
 
     var body: some View {
         NavigationStack {
@@ -52,16 +48,27 @@ struct HomeView: View {
     // MARK: - Header View
     private var headerView: some View {
         HStack {
-            HStack(spacing: 4) {
-                Image(systemName: "location.fill")
-                    .foregroundColor(.tuckerOrange)
-                    .font(.caption)
-                Text(selectedLocation)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                Image(systemName: "chevron.down")
-                    .font(.caption2)
-                    .foregroundColor(.tuckerTextSecondary)
+            Button {
+                locationManager.requestPermission()
+                locationManager.startUpdating()
+            } label: {
+                HStack(spacing: 4) {
+                    if locationManager.isLoading {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    } else {
+                        Image(systemName: "location.fill")
+                            .foregroundColor(.tuckerOrange)
+                            .font(.caption)
+                    }
+                    Text(locationManager.locationName)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.tuckerTextPrimary)
+                    Image(systemName: "chevron.down")
+                        .font(.caption2)
+                        .foregroundColor(.tuckerTextSecondary)
+                }
             }
             Spacer()
             Image(systemName: "bell")
@@ -95,28 +102,44 @@ struct HomeView: View {
 
     // MARK: - Banner Carousel
     private var bannerCarousel: some View {
-        TabView {
-            ForEach(banners) { banner in
-                AsyncImage(url: URL(string: banner.image)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Rectangle()
-                        .fill(LinearGradient(
-                            colors: [.tuckerOrange.opacity(0.3), .tuckerLight.opacity(0.3)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        ))
+        Group {
+            if !banners.isEmpty {
+                VStack(spacing: 8) {
+                    TabView(selection: $currentBannerIndex) {
+                        ForEach(Array(banners.prefix(5).enumerated()), id: \.element.id) { index, banner in
+                            BannerCard(banner: banner, merchants: merchants)
+                                .tag(index)
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .frame(height: 160)
+
+                    // Custom page indicator
+                    if banners.count > 1 {
+                        HStack(spacing: 6) {
+                            ForEach(0..<min(banners.count, 5), id: \.self) { index in
+                                Circle()
+                                    .fill(currentBannerIndex == index ? Color.tuckerOrange : Color.gray.opacity(0.3))
+                                    .frame(width: currentBannerIndex == index ? 8 : 6, height: currentBannerIndex == index ? 8 : 6)
+                                    .animation(.easeInOut(duration: 0.2), value: currentBannerIndex)
+                            }
+                        }
+                        .padding(.bottom, 4)
+                    }
                 }
-                .frame(height: 140)
-                .cornerRadius(12)
-                .padding(.horizontal)
+                .background(Color.tuckerSurface)
+            } else {
+                // Placeholder while loading
+                Rectangle()
+                    .fill(Color.tuckerSurface)
+                    .frame(height: 170)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.gray.opacity(0.1))
+                            .padding(.horizontal)
+                    )
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .automatic))
-        .frame(height: 160)
-        .background(Color.tuckerSurface)
     }
 
     // MARK: - Quick Actions
@@ -273,9 +296,33 @@ struct HomeView: View {
 
     private func loadData() async {
         isLoading = true
+
+        // Request location permission on first load
+        if locationManager.authorizationStatus == .notDetermined {
+            locationManager.requestPermission()
+        } else if locationManager.authorizationStatus == .authorizedWhenInUse ||
+                  locationManager.authorizationStatus == .authorizedAlways {
+            locationManager.startUpdating()
+        }
+
+        // Load banners separately (don't fail everything if this fails)
+        Task {
+            do {
+                let bannerItems = try await APIService.shared.getBanners()
+                await MainActor.run {
+                    banners = bannerItems.filter { $0.isActive && $0.type == "home" }
+                }
+            } catch {
+                print("Error loading banners: \(error)")
+            }
+        }
+
         do {
             async let categoriesResult = APIService.shared.getCategories()
-            async let merchantsResult = APIService.shared.getMerchants()
+            async let merchantsResult = APIService.shared.getMerchants(
+                latitude: locationManager.latitude,
+                longitude: locationManager.longitude
+            )
 
             let (cats, merchResponse) = try await (categoriesResult, merchantsResult)
             categories = cats
@@ -289,10 +336,79 @@ struct HomeView: View {
 
 // MARK: - Supporting Views
 
-struct Banner: Identifiable {
-    let id: String
-    let image: String
-    let title: String
+struct BannerCard: View {
+    let banner: BannerItem
+    let merchants: [Merchant]
+
+    var body: some View {
+        NavigationLink(destination: destinationView) {
+            ZStack(alignment: .bottomLeading) {
+                // Background image
+                AsyncImage(url: URL(string: banner.imageUrl)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    case .failure(_):
+                        Rectangle()
+                            .fill(LinearGradient(
+                                colors: [.tuckerOrange, .red.opacity(0.8)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                    case .empty:
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                            .overlay(ProgressView())
+                    @unknown default:
+                        Rectangle().fill(Color.gray.opacity(0.2))
+                    }
+                }
+                .frame(height: 150)
+                .clipped()
+
+                // Gradient overlay
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.7)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                // Text content
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(banner.title)
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+
+                    if let subtitle = banner.subtitle {
+                        Text(subtitle)
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.9))
+                    }
+                }
+                .padding()
+            }
+            .frame(height: 150)
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 2)
+            .padding(.horizontal)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+
+    @ViewBuilder
+    private var destinationView: some View {
+        if banner.actionType == "merchant", let merchantId = banner.actionValue {
+            MerchantDetailView(merchantId: merchantId)
+        } else if !merchants.isEmpty {
+            // Default: navigate to a random merchant
+            MerchantDetailView(merchantId: merchants[Int.random(in: 0..<merchants.count)].id)
+        } else {
+            SearchView()
+        }
+    }
 }
 
 struct FilterChip: View {

@@ -11,6 +11,7 @@
 		F0000002218D0001001AAAAA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0000012218D0001001AAAAA /* ContentView.swift */; };
 		F0000003218D0001001AAAAA /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0000013218D0001001AAAAA /* AuthManager.swift */; };
 		F0000004218D0001001AAAAA /* CartManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0000014218D0001001AAAAA /* CartManager.swift */; };
+		F0000021218D0001001AAAAA /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0000031218D0001001AAAAA /* LocationManager.swift */; };
 		F0000005218D0001001AAAAA /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0000015218D0001001AAAAA /* Models.swift */; };
 		F0000006218D0001001AAAAA /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0000016218D0001001AAAAA /* APIService.swift */; };
 		F0000007218D0001001AAAAA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0000017218D0001001AAAAA /* HomeView.swift */; };
@@ -42,6 +43,7 @@
 		F000001E218D0001001AAAAA /* PaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentView.swift; sourceTree = "<group>"; };
 		F000001F218D0001001AAAAA /* OrdersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersView.swift; sourceTree = "<group>"; };
 		F0000030218D0001001AAAAA /* AddAddressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAddressView.swift; sourceTree = "<group>"; };
+		F0000031218D0001001AAAAA /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		F0000041218D0001001AAAAA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -102,6 +104,7 @@
 			children = (
 				F0000013218D0001001AAAAA /* AuthManager.swift */,
 				F0000014218D0001001AAAAA /* CartManager.swift */,
+				F0000031218D0001001AAAAA /* LocationManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -211,6 +214,7 @@
 				F000000E218D0001001AAAAA /* PaymentView.swift in Sources */,
 				F000000F218D0001001AAAAA /* OrdersView.swift in Sources */,
 				F0000020218D0001001AAAAA /* AddAddressView.swift in Sources */,
+				F0000021218D0001001AAAAA /* LocationManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

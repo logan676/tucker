@@ -9,5 +9,9 @@
         <key>NSAllowsArbitraryLoads</key>
         <true/>
     </dict>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Tucker needs your location to find nearby restaurants and calculate delivery distance.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Tucker needs your location to find nearby restaurants and calculate delivery distance.</string>
 </dict>
 </plist>
