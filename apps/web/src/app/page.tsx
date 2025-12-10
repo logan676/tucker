@@ -48,29 +48,42 @@ export default function HomePage() {
 
   return (
     <div className="pb-16">
+      {/* Hero Section */}
+      <section className="relative h-[400px] md:h-[500px]">
+        <Image
+          src="/images/hero-customer.jpeg"
+          alt="Tucker - Aussie Eats, Delivered Fast"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+        <div className="absolute bottom-8 left-4 right-4 md:left-8">
+          {/* Search on Hero */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Search restaurants or dishes..."
+              className="w-full pl-12 pr-4 py-4 rounded-full text-gray-800 shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Header */}
-      <header className="bg-primary-500 text-white p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <MapPin size={20} />
-            <span className="text-sm">Select Delivery Address</span>
+      <header className="bg-white shadow-sm p-4 sticky top-0 z-10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-gray-700">
+            <MapPin size={20} className="text-primary-500" />
+            <span className="text-sm font-medium">Select Delivery Address</span>
           </div>
           <Link href="/cart" className="relative">
-            <ShoppingCart size={24} />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <ShoppingCart size={24} className="text-gray-700" />
+            <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               0
             </span>
           </Link>
-        </div>
-
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-          <input
-            type="text"
-            placeholder="Search restaurants or dishes..."
-            className="w-full pl-10 pr-4 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-300"
-          />
         </div>
       </header>
 
