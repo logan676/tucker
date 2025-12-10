@@ -1,5 +1,13 @@
 import SwiftUI
 
+// MARK: - Tucker Brand Colors
+extension Color {
+    static let tuckerOrange = Color(red: 217/255, green: 119/255, blue: 6/255)
+    static let tuckerDark = Color(red: 180/255, green: 83/255, blue: 9/255)
+    static let tuckerLight = Color(red: 251/255, green: 191/255, blue: 36/255)
+    static let tuckerCream = Color(red: 254/255, green: 243/255, blue: 199/255)
+}
+
 struct HomeView: View {
     @State private var categories: [Category] = []
     @State private var merchants: [Merchant] = []
