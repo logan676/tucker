@@ -84,14 +84,36 @@ export default function MainLayout() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="logo">{collapsed ? 'T' : 'Tucker Admin'}</div>
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        style={{ background: '#B45309' }}
+      >
+        <div style={{
+          height: 64,
+          margin: 16,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#D97706',
+          borderRadius: 8,
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: collapsed ? 20 : 16,
+        }}>
+          {collapsed ? '🍴' : '🍴 Tucker Admin'}
+        </div>
         <Menu
-          theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
           onClick={handleMenuClick}
+          style={{
+            background: '#B45309',
+            borderRight: 'none',
+          }}
+          theme="dark"
         />
       </Sider>
       <Layout>

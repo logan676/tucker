@@ -21,7 +21,7 @@ struct ProfileView: View {
                             .clipShape(Circle())
 
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(authManager.currentUser?.nickname ?? "User")
+                                Text(authManager.currentUser?.name ?? "User")
                                     .font(.headline)
                                 Text(authManager.currentUser?.phone ?? "")
                                     .font(.subheadline)
@@ -96,7 +96,7 @@ struct ProfileView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 32)
                             .padding(.vertical, 12)
-                            .background(Color.orange)
+                            .background(Color.tuckerOrange)
                             .cornerRadius(20)
                     }
                 }
@@ -188,7 +188,7 @@ struct AboutView: View {
         VStack(spacing: 16) {
             Image(systemName: "fork.knife.circle.fill")
                 .font(.system(size: 80))
-                .foregroundColor(.orange)
+                .foregroundColor(.tuckerOrange)
             Text("Tucker")
                 .font(.title)
                 .fontWeight(.bold)

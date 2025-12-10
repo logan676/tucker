@@ -6,6 +6,7 @@ struct Category: Codable, Identifiable {
     let icon: String?
     let sortOrder: Int
     let isActive: Bool
+    let createdAt: String?
 }
 
 struct Merchant: Codable, Identifiable {
@@ -14,13 +15,20 @@ struct Merchant: Codable, Identifiable {
     let logo: String?
     let banner: String?
     let description: String?
+    let category: String?
     let rating: Double
-    let ratingCount: Int
+    let ratingCount: Int?
     let monthlySales: Int
     let minOrderAmount: Double
     let deliveryFee: Double
     let deliveryTime: String?
-    let isOpen: Bool
+    let distance: String?
+    let features: [String]?
+    let status: String?
+
+    var isOpen: Bool {
+        status == "open"
+    }
 }
 
 struct Product: Codable, Identifiable {

@@ -31,7 +31,7 @@ struct AddAddressView: View {
                                     Text(item)
                                         .padding(.horizontal, 16)
                                         .padding(.vertical, 8)
-                                        .background(label == item ? Color.orange : Color(.systemGray5))
+                                        .background(label == item ? Color.tuckerOrange : Color(.systemGray5))
                                         .foregroundColor(label == item ? .white : .primary)
                                         .cornerRadius(20)
                                 }

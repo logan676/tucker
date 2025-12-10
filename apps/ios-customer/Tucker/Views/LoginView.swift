@@ -17,12 +17,37 @@ struct LoginView: View {
 
             // Logo
             VStack(spacing: 8) {
-                Image(systemName: "fork.knife.circle.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.orange)
+                // Tucker Logo - Location pin with fork & spoon
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.tuckerOrange)
+                        .frame(width: 100, height: 100)
+
+                    VStack(spacing: 0) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.tuckerCream)
+                                .frame(width: 60, height: 60)
+
+                            HStack(spacing: 4) {
+                                Image(systemName: "fork.knife")
+                                    .font(.system(size: 24, weight: .medium))
+                                    .foregroundColor(Color.tuckerDark)
+                            }
+                        }
+
+                        // Pin point
+                        Triangle()
+                            .fill(Color.tuckerCream)
+                            .frame(width: 20, height: 12)
+                            .offset(y: -2)
+                    }
+                }
+
                 Text("Tucker")
                     .font(.largeTitle)
                     .fontWeight(.bold)
+                    .foregroundColor(.tuckerDark)
                 Text("Food delivery made easy")
                     .foregroundColor(.gray)
             }
@@ -55,7 +80,7 @@ struct LoginView: View {
                                 .foregroundColor(.gray)
                         } else {
                             Text(codeSent ? "Resend" : "Send Code")
-                                .foregroundColor(.orange)
+                                .foregroundColor(.tuckerOrange)
                         }
                     }
                     .disabled(phone.count < 11 || countdown > 0 || authManager.isLoading)
@@ -85,7 +110,7 @@ struct LoginView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(canLogin ? Color.orange : Color.gray)
+                .background(canLogin ? Color.tuckerOrange : Color.gray)
                 .foregroundColor(.white)
                 .cornerRadius(10)
                 .disabled(!canLogin || authManager.isLoading)
@@ -108,7 +133,7 @@ struct LoginView: View {
                 countdown -= 1
             }
         }
-        .onChange(of: authManager.isAuthenticated) { _, isAuthenticated in
+        .onChange(of: authManager.isAuthenticated) { isAuthenticated in
             if isAuthenticated {
                 dismiss()
             }

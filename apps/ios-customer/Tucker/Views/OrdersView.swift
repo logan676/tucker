@@ -22,7 +22,7 @@ struct OrdersView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 32)
                                 .padding(.vertical, 12)
-                                .background(Color.orange)
+                                .background(Color.tuckerOrange)
                                 .cornerRadius(20)
                         }
                     }
@@ -82,7 +82,7 @@ struct OrderCard: View {
         case "completed": return .green
         case "cancelled": return .red
         case "delivering": return .blue
-        default: return .orange
+        default: return .tuckerOrange
         }
     }
 
@@ -111,7 +111,7 @@ struct OrderCard: View {
                     Text("x\(item.quantity)")
                         .foregroundColor(.gray)
                     Text("¥\(Int(item.price))")
-                        .foregroundColor(.orange)
+                        .foregroundColor(.tuckerOrange)
                 }
             }
 
@@ -124,7 +124,7 @@ struct OrderCard: View {
                 Spacer()
                 Text("Total: ¥\(String(format: "%.2f", order.totalAmount))")
                     .fontWeight(.medium)
-                    .foregroundColor(.orange)
+                    .foregroundColor(.tuckerOrange)
             }
         }
         .padding()

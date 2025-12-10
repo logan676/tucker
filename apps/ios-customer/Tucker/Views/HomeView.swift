@@ -1,13 +1,5 @@
 import SwiftUI
 
-// MARK: - Tucker Brand Colors
-extension Color {
-    static let tuckerOrange = Color(red: 217/255, green: 119/255, blue: 6/255)
-    static let tuckerDark = Color(red: 180/255, green: 83/255, blue: 9/255)
-    static let tuckerLight = Color(red: 251/255, green: 191/255, blue: 36/255)
-    static let tuckerCream = Color(red: 254/255, green: 243/255, blue: 199/255)
-}
-
 struct HomeView: View {
     @State private var categories: [Category] = []
     @State private var merchants: [Merchant] = []
@@ -47,7 +39,7 @@ struct HomeView: View {
                     nearbyRestaurantsSection
                 }
             }
-            .background(Color(.systemGray6))
+            .background(Color.tuckerBackground)
             .refreshable {
                 await loadData()
             }
@@ -69,16 +61,16 @@ struct HomeView: View {
                     .fontWeight(.medium)
                 Image(systemName: "chevron.down")
                     .font(.caption2)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.tuckerTextSecondary)
             }
             Spacer()
             Image(systemName: "bell")
                 .font(.title3)
-                .foregroundColor(.gray)
+                .foregroundColor(.tuckerTextSecondary)
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .background(Color.white)
+        .background(Color.tuckerSurface)
     }
 
     // MARK: - Search Bar
@@ -86,19 +78,19 @@ struct HomeView: View {
         NavigationLink(destination: SearchView()) {
             HStack {
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(.gray)
+                    .foregroundColor(.tuckerTextSecondary)
                 Text("Search restaurants or dishes...")
-                    .foregroundColor(.gray)
+                    .foregroundColor(.tuckerTextSecondary)
                 Spacer()
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-            .background(Color(.systemGray6))
+            .background(Color.tuckerBackground)
             .cornerRadius(20)
             .padding(.horizontal)
             .padding(.bottom, 8)
         }
-        .background(Color.white)
+        .background(Color.tuckerSurface)
     }
 
     // MARK: - Banner Carousel
@@ -124,7 +116,7 @@ struct HomeView: View {
         }
         .tabViewStyle(.page(indexDisplayMode: .automatic))
         .frame(height: 160)
-        .background(Color.white)
+        .background(Color.tuckerSurface)
     }
 
     // MARK: - Quick Actions
@@ -136,7 +128,7 @@ struct HomeView: View {
             quickActionItem(icon: "star.fill", title: "Top Rated", color: .yellow)
         }
         .padding(.vertical, 12)
-        .background(Color.white)
+        .background(Color.tuckerSurface)
     }
 
     private func quickActionItem(icon: String, title: String, color: Color) -> some View {
@@ -146,7 +138,7 @@ struct HomeView: View {
                 .foregroundColor(color)
             Text(title)
                 .font(.caption)
-                .foregroundColor(.primary)
+                .foregroundColor(.tuckerTextPrimary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -176,7 +168,7 @@ struct HomeView: View {
 
                             Text(category.name)
                                 .font(.caption2)
-                                .foregroundColor(.primary)
+                                .foregroundColor(.tuckerTextPrimary)
                                 .lineLimit(1)
                         }
                     }
@@ -185,7 +177,7 @@ struct HomeView: View {
             .padding(.horizontal)
         }
         .padding(.vertical, 12)
-        .background(Color.white)
+        .background(Color.tuckerSurface)
         .padding(.top, 8)
     }
 
@@ -225,7 +217,7 @@ struct HomeView: View {
             }
         }
         .padding(.vertical, 12)
-        .background(Color.white)
+        .background(Color.tuckerSurface)
         .padding(.top, 8)
     }
 
@@ -263,7 +255,7 @@ struct HomeView: View {
             }
         }
         .padding(.vertical, 12)
-        .background(Color.white)
+        .background(Color.tuckerSurface)
         .padding(.top, 8)
     }
 
@@ -271,9 +263,9 @@ struct HomeView: View {
         VStack(spacing: 12) {
             Image(systemName: "storefront")
                 .font(.system(size: 48))
-                .foregroundColor(.gray)
+                .foregroundColor(.tuckerTextSecondary)
             Text("No restaurants available")
-                .foregroundColor(.gray)
+                .foregroundColor(.tuckerTextSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
@@ -334,7 +326,7 @@ struct FlashDealCard: View {
             Text(merchant.name)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundColor(.primary)
+                .foregroundColor(.tuckerTextPrimary)
                 .lineLimit(1)
 
             HStack(spacing: 2) {
@@ -344,7 +336,7 @@ struct FlashDealCard: View {
                     .foregroundColor(.red)
                 Text("up")
                     .font(.caption2)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.tuckerTextSecondary)
             }
         }
         .frame(width: 120)
@@ -371,7 +363,7 @@ struct MerchantCard: View {
                     Text(merchant.name)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.tuckerTextPrimary)
                         .lineLimit(1)
 
                     if !merchant.isOpen {
@@ -397,7 +389,7 @@ struct MerchantCard: View {
                             .fontWeight(.medium)
                     }
                     Text("\(merchant.monthlySales)+ sold/month")
-                        .foregroundColor(.gray)
+                        .foregroundColor(.tuckerTextSecondary)
                         .font(.caption)
                 }
 
@@ -409,15 +401,15 @@ struct MerchantCard: View {
                         Text(merchant.deliveryTime ?? "30-45 min")
                             .font(.caption)
                     }
-                    .foregroundColor(.gray)
+                    .foregroundColor(.tuckerTextSecondary)
 
                     Text("Delivery ¥\(Int(merchant.deliveryFee))")
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.tuckerTextSecondary)
 
                     Text("Min ¥\(Int(merchant.minOrderAmount))")
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.tuckerTextSecondary)
                 }
 
                 // Tags

@@ -13,11 +13,27 @@ enum PaymentMethod: String, CaseIterable {
         }
     }
 
+    var icon: String {
+        switch self {
+        case .wechat: return "message.fill"
+        case .alipay: return "a.circle.fill"
+        case .card: return "creditcard.fill"
+        }
+    }
+
     var color: Color {
         switch self {
-        case .wechat: return .green
-        case .alipay: return .blue
+        case .wechat: return Color(red: 0.07, green: 0.73, blue: 0.31)
+        case .alipay: return Color(red: 0.02, green: 0.68, blue: 0.94)
         case .card: return .purple
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .wechat: return "Recommended"
+        case .alipay: return "Quick payment"
+        case .card: return "Visa, Mastercard, UnionPay"
         }
     }
 }
@@ -39,130 +55,43 @@ struct PaymentView: View {
 
     var body: some View {
         ZStack {
+            Color(.systemGray6).ignoresSafeArea()
+
             if isLoading {
                 ProgressView()
+                    .scaleEffect(1.2)
             } else if showSuccess {
                 OrderSuccessView(order: order)
             } else {
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Countdown
-                        Text("Time remaining: \(formatTime(countdown))")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                VStack(spacing: 0) {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            // Amount Card
+                            amountCard
 
-                        // Amount
-                        VStack(spacing: 8) {
-                            Text("Amount to Pay")
-                                .foregroundColor(.gray)
-                            Text("¥\(String(format: "%.2f", order?.payAmount ?? 0))")
-                                .font(.system(size: 40, weight: .bold))
-                                .foregroundColor(.orange)
-                            Text("Order: \(order?.orderNo ?? "")")
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                            // Countdown warning
+                            if countdown < 300 {
+                                countdownWarning
+                            }
+
+                            // Payment Methods
+                            if paymentId == nil {
+                                paymentMethodsSection
+                            } else {
+                                qrCodeSection
+                            }
                         }
                         .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.white)
-                        .cornerRadius(12)
-
-                        if paymentId == nil {
-                            // Payment Method Selection
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("Select Payment Method")
-                                    .font(.headline)
-
-                                ForEach(PaymentMethod.allCases, id: \.self) { method in
-                                    PaymentMethodRow(
-                                        method: method,
-                                        isSelected: selectedMethod == method,
-                                        onSelect: { selectedMethod = method }
-                                    )
-                                }
-                            }
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(12)
-
-                            // Pay Button
-                            Button {
-                                Task { await initiatePayment() }
-                            } label: {
-                                if isProcessing {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                } else {
-                                    Text("Pay ¥\(String(format: "%.2f", order?.payAmount ?? 0))")
-                                        .fontWeight(.bold)
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(countdown > 0 ? Color.orange : Color.gray)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
-                            .disabled(isProcessing || countdown <= 0)
-                        } else {
-                            // Mock Payment UI
-                            VStack(spacing: 16) {
-                                Rectangle()
-                                    .fill(Color(.systemGray5))
-                                    .frame(width: 200, height: 200)
-                                    .cornerRadius(12)
-                                    .overlay(
-                                        VStack {
-                                            Text("Scan QR Code")
-                                                .foregroundColor(.gray)
-                                            Text("(Mock Payment)")
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
-                                        }
-                                    )
-
-                                Text("In production, this would show a \(selectedMethod.displayName) QR code")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(12)
-
-                            // Simulate Payment Button
-                            Button {
-                                Task { await simulatePayment() }
-                            } label: {
-                                if isProcessing {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                } else {
-                                    Text("Simulate Successful Payment")
-                                        .fontWeight(.bold)
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
-                            .disabled(isProcessing)
-
-                            Button {
-                                paymentId = nil
-                            } label: {
-                                Text("Change Payment Method")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.systemGray5))
-                            .foregroundColor(.primary)
-                            .cornerRadius(12)
-                        }
+                        .padding(.bottom, 100)
                     }
-                    .padding()
+
+                    // Bottom action bar
+                    if paymentId == nil {
+                        payButton
+                    } else {
+                        simulatePaymentButton
+                    }
                 }
-                .background(Color(.systemGray6))
             }
         }
         .navigationTitle("Payment")
@@ -180,6 +109,191 @@ struct PaymentView: View {
             Button("OK") { error = nil }
         } message: {
             Text(error ?? "")
+        }
+    }
+
+    private var amountCard: some View {
+        VStack(spacing: 16) {
+            // Timer
+            HStack(spacing: 6) {
+                Image(systemName: "clock")
+                    .font(.caption)
+                Text("Pay within")
+                Text(formatTime(countdown))
+                    .fontWeight(.semibold)
+                    .foregroundColor(countdown < 300 ? .red : .tuckerOrange)
+            }
+            .font(.subheadline)
+            .foregroundColor(.gray)
+
+            // Amount
+            VStack(spacing: 4) {
+                Text("Amount Due")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text("¥")
+                        .font(.title2)
+                    Text(String(format: "%.2f", order?.payAmount ?? 0))
+                        .font(.system(size: 48, weight: .bold))
+                }
+                .foregroundColor(.primary)
+            }
+
+            // Order info
+            HStack(spacing: 16) {
+                VStack(spacing: 2) {
+                    Text("Order No.")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                    Text(order?.orderNo ?? "")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                }
+
+                Divider()
+                    .frame(height: 30)
+
+                VStack(spacing: 2) {
+                    Text("Items")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                    Text("\(order?.items?.count ?? 0)")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                }
+            }
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal)
+        .frame(maxWidth: .infinity)
+        .background(Color.white)
+        .cornerRadius(16)
+    }
+
+    private var countdownWarning: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.tuckerOrange)
+            Text("Order will expire soon! Please complete payment.")
+                .font(.caption)
+                .foregroundColor(.tuckerOrange)
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color.tuckerOrange.opacity(0.1))
+        .cornerRadius(8)
+    }
+
+    private var paymentMethodsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Select Payment Method")
+                .font(.headline)
+                .padding(.horizontal, 4)
+
+            VStack(spacing: 12) {
+                ForEach(PaymentMethod.allCases, id: \.self) { method in
+                    PaymentMethodRow(
+                        method: method,
+                        isSelected: selectedMethod == method,
+                        onSelect: { selectedMethod = method }
+                    )
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+    }
+
+    private var qrCodeSection: some View {
+        VStack(spacing: 20) {
+            Text("Scan to Pay with \(selectedMethod.displayName)")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+
+            // QR Code placeholder
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemGray6))
+                    .frame(width: 200, height: 200)
+
+                VStack(spacing: 12) {
+                    Image(systemName: "qrcode")
+                        .font(.system(size: 80))
+                        .foregroundColor(.gray)
+                    Text("Demo QR Code")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+            }
+
+            Text("Open \(selectedMethod.displayName) app and scan the code")
+                .font(.caption)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+
+            Button {
+                paymentId = nil
+            } label: {
+                Text("Change Payment Method")
+                    .font(.subheadline)
+                    .foregroundColor(.tuckerOrange)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color.white)
+        .cornerRadius(16)
+    }
+
+    private var payButton: some View {
+        Button {
+            Task { await initiatePayment() }
+        } label: {
+            HStack {
+                if isProcessing {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                } else {
+                    Image(systemName: selectedMethod.icon)
+                    Text("Pay with \(selectedMethod.displayName)")
+                        .fontWeight(.bold)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+        }
+        .foregroundColor(.white)
+        .background(
+            countdown > 0
+                ? LinearGradient(colors: [selectedMethod.color, selectedMethod.color.opacity(0.8)], startPoint: .leading, endPoint: .trailing)
+                : LinearGradient(colors: [.gray, .gray], startPoint: .leading, endPoint: .trailing)
+        )
+        .disabled(isProcessing || countdown <= 0)
+    }
+
+    private var simulatePaymentButton: some View {
+        VStack(spacing: 0) {
+            Button {
+                Task { await simulatePayment() }
+            } label: {
+                HStack {
+                    if isProcessing {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                        Text("Complete Payment (Demo)")
+                            .fontWeight(.bold)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+            }
+            .foregroundColor(.white)
+            .background(Color.green)
+            .disabled(isProcessing)
         }
     }
 
@@ -233,30 +347,63 @@ struct PaymentMethodRow: View {
 
     var body: some View {
         Button(action: onSelect) {
-            HStack(spacing: 12) {
-                Circle()
-                    .fill(method.color)
-                    .frame(width: 40, height: 40)
-                    .overlay(
-                        Text(String(method.displayName.prefix(1)))
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                    )
+            HStack(spacing: 14) {
+                // Icon
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(method.color)
+                        .frame(width: 44, height: 44)
 
-                Text(method.displayName)
-                    .foregroundColor(.primary)
+                    Image(systemName: method.icon)
+                        .font(.title3)
+                        .foregroundColor(.white)
+                }
+
+                // Text
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(method.displayName)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+
+                        if method == .wechat {
+                            Text("Recommended")
+                                .font(.caption2)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.tuckerOrange)
+                                .cornerRadius(4)
+                        }
+                    }
+
+                    Text(method.subtitle)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
 
                 Spacer()
 
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(isSelected ? method.color : .gray)
+                // Selection indicator
+                ZStack {
+                    Circle()
+                        .stroke(isSelected ? method.color : Color.gray.opacity(0.3), lineWidth: 2)
+                        .frame(width: 22, height: 22)
+
+                    if isSelected {
+                        Circle()
+                            .fill(method.color)
+                            .frame(width: 14, height: 14)
+                    }
+                }
             }
             .padding()
-            .background(isSelected ? method.color.opacity(0.1) : Color(.systemGray6))
+            .background(isSelected ? method.color.opacity(0.05) : Color(.systemGray6))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? method.color : Color.clear, lineWidth: 1)
+                    .stroke(isSelected ? method.color : Color.clear, lineWidth: 1.5)
             )
         }
         .buttonStyle(.plain)
@@ -266,85 +413,223 @@ struct PaymentMethodRow: View {
 struct OrderSuccessView: View {
     let order: Order?
     @Environment(\.dismiss) var dismiss
+    @State private var animateCheck = false
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        ZStack {
+            Color(.systemGray6).ignoresSafeArea()
 
-            // Success Icon
-            ZStack {
-                Circle()
-                    .fill(Color.green)
-                    .frame(width: 80, height: 80)
-                Image(systemName: "checkmark")
-                    .font(.system(size: 40, weight: .bold))
-                    .foregroundColor(.white)
-            }
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Spacer().frame(height: 40)
 
-            Text("Order Placed Successfully!")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.green)
+                        // Success Animation
+                        ZStack {
+                            Circle()
+                                .fill(Color.green.opacity(0.1))
+                                .frame(width: 120, height: 120)
+                                .scaleEffect(animateCheck ? 1 : 0.5)
 
-            Text("Your order is being prepared")
-                .foregroundColor(.gray)
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 90, height: 90)
+                                .scaleEffect(animateCheck ? 1 : 0.5)
 
-            // Order Info
-            if let order = order {
-                VStack(spacing: 12) {
-                    HStack {
-                        Text("Order Number")
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Text(order.orderNo)
-                            .fontWeight(.medium)
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 44, weight: .bold))
+                                .foregroundColor(.white)
+                                .scaleEffect(animateCheck ? 1 : 0)
+                        }
+                        .animation(.spring(response: 0.5, dampingFraction: 0.6), value: animateCheck)
+
+                        VStack(spacing: 8) {
+                            Text("Payment Successful!")
+                                .font(.title2)
+                                .fontWeight(.bold)
+
+                            Text("Your order has been confirmed")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+
+                        // Order Status Card
+                        VStack(spacing: 16) {
+                            // Progress steps
+                            HStack(spacing: 0) {
+                                OrderStep(icon: "checkmark.circle.fill", title: "Paid", isActive: true, isComplete: true)
+                                StepConnector(isActive: true)
+                                OrderStep(icon: "flame.fill", title: "Preparing", isActive: true, isComplete: false)
+                                StepConnector(isActive: false)
+                                OrderStep(icon: "bicycle", title: "On the way", isActive: false, isComplete: false)
+                                StepConnector(isActive: false)
+                                OrderStep(icon: "house.fill", title: "Delivered", isActive: false, isComplete: false)
+                            }
+                            .padding(.horizontal)
+
+                            Divider()
+
+                            // Estimated time
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Estimated Delivery")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                    Text("30-45 minutes")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.tuckerOrange)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "clock.fill")
+                                    .font(.title)
+                                    .foregroundColor(.tuckerOrange.opacity(0.3))
+                            }
+                            .padding(.horizontal)
+                        }
+                        .padding(.vertical)
+                        .background(Color.white)
+                        .cornerRadius(16)
+
+                        // Order Details Card
+                        if let order = order {
+                            VStack(spacing: 0) {
+                                HStack {
+                                    Text("Order Details")
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(Color(.systemGray6).opacity(0.5))
+
+                                VStack(spacing: 12) {
+                                    OrderInfoRow(label: "Order Number", value: order.orderNo)
+                                    OrderInfoRow(label: "Payment Amount", value: "¥\(String(format: "%.2f", order.payAmount))", valueColor: .tuckerOrange)
+                                    OrderInfoRow(label: "Payment Method", value: "WeChat Pay")
+                                    OrderInfoRow(label: "Order Time", value: formatDate(Date()))
+                                }
+                                .padding()
+                            }
+                            .background(Color.white)
+                            .cornerRadius(16)
+                        }
+
+                        // Contact rider section
+                        HStack(spacing: 16) {
+                            Button {
+                                // Contact rider
+                            } label: {
+                                HStack {
+                                    Image(systemName: "phone.fill")
+                                    Text("Contact Rider")
+                                }
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(12)
+                            }
+
+                            Button {
+                                // Contact merchant
+                            } label: {
+                                HStack {
+                                    Image(systemName: "storefront.fill")
+                                    Text("Contact Store")
+                                }
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(12)
+                            }
+                        }
                     }
-                    HStack {
-                        Text("Total Paid")
-                            .foregroundColor(.gray)
-                        Spacer()
-                        Text("¥\(String(format: "%.2f", order.payAmount))")
-                            .fontWeight(.bold)
-                            .foregroundColor(.orange)
-                    }
-                }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(12)
-            }
-
-            // Estimated Time
-            VStack(spacing: 8) {
-                Text("Estimated Delivery Time")
-                    .foregroundColor(.gray)
-                Text("30-45 min")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.orange)
-            }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(Color.white)
-            .cornerRadius(12)
-
-            Spacer()
-
-            // Back to Home
-            Button {
-                // Pop to root
-                dismiss()
-            } label: {
-                Text("Back to Home")
-                    .fontWeight(.medium)
-                    .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.orange)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
+                    .padding(.bottom, 100)
+                }
+
+                // Bottom button
+                Button {
+                    dismiss()
+                } label: {
+                    Text("Back to Home")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                }
+                .foregroundColor(.white)
+                .background(
+                    LinearGradient(colors: [.tuckerOrange, .red], startPoint: .leading, endPoint: .trailing)
+                )
             }
         }
-        .padding()
-        .background(Color(.systemGray6))
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                animateCheck = true
+            }
+        }
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, yyyy h:mm a"
+        return formatter.string(from: date)
+    }
+}
+
+struct OrderStep: View {
+    let icon: String
+    let title: String
+    let isActive: Bool
+    let isComplete: Bool
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundColor(isActive ? .tuckerOrange : .gray.opacity(0.4))
+            Text(title)
+                .font(.system(size: 9))
+                .foregroundColor(isActive ? .primary : .gray.opacity(0.6))
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct StepConnector: View {
+    let isActive: Bool
+
+    var body: some View {
+        Rectangle()
+            .fill(isActive ? Color.tuckerOrange : Color.gray.opacity(0.3))
+            .frame(height: 2)
+            .frame(maxWidth: 30)
+    }
+}
+
+struct OrderInfoRow: View {
+    let label: String
+    let value: String
+    var valueColor: Color = .primary
+
+    var body: some View {
+        HStack {
+            Text(label)
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            Spacer()
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(valueColor)
+        }
     }
 }
 

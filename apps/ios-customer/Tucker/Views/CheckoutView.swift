@@ -14,37 +14,54 @@ struct CheckoutView: View {
     @State private var showAddAddress = false
     @State private var createdOrderId: String?
     @State private var navigateToPayment = false
+    @State private var selectedDeliveryTime = "Now"
+    @State private var showCouponSheet = false
+
+    let deliveryFee: Double = 5.0
+    let packagingFee: Double = 2.0
 
     var body: some View {
         NavigationStack {
             ZStack {
+                Color(.systemGray6).ignoresSafeArea()
+
                 if !authManager.isAuthenticated {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 20) {
                         Image(systemName: "person.crop.circle.badge.exclamationmark")
-                            .font(.system(size: 64))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 72))
+                            .foregroundColor(.tuckerOrange.opacity(0.6))
                         Text("Please login to checkout")
+                            .font(.headline)
                             .foregroundColor(.gray)
                         NavigationLink(destination: LoginView()) {
-                            Text("Login")
-                                .fontWeight(.medium)
+                            Text("Login Now")
+                                .fontWeight(.bold)
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 32)
-                                .padding(.vertical, 12)
-                                .background(Color.orange)
-                                .cornerRadius(20)
+                                .padding(.horizontal, 40)
+                                .padding(.vertical, 14)
+                                .background(
+                                    LinearGradient(colors: [.tuckerOrange, .red], startPoint: .leading, endPoint: .trailing)
+                                )
+                                .cornerRadius(25)
                         }
                     }
                 } else if isLoading {
                     ProgressView()
+                        .scaleEffect(1.2)
                 } else {
                     ScrollView {
-                        VStack(spacing: 16) {
+                        VStack(spacing: 12) {
                             // Delivery Address Section
                             addressSection
 
+                            // Delivery Time Section
+                            deliveryTimeSection
+
                             // Order Items Section
                             orderItemsSection
+
+                            // Coupon Section
+                            couponSection
 
                             // Remark Section
                             remarkSection
@@ -52,8 +69,9 @@ struct CheckoutView: View {
                             // Price Summary
                             priceSummarySection
                         }
-                        .padding()
-                        .padding(.bottom, 80)
+                        .padding(.horizontal, 12)
+                        .padding(.top, 8)
+                        .padding(.bottom, 100)
                     }
 
                     // Bottom Bar
@@ -63,12 +81,15 @@ struct CheckoutView: View {
                     }
                 }
             }
-            .navigationTitle("Checkout")
+            .navigationTitle("Confirm Order")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button {
                         dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.primary)
                     }
                 }
             }
@@ -97,81 +118,117 @@ struct CheckoutView: View {
     }
 
     private var addressSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "location.fill")
-                    .foregroundColor(.orange)
-                Text("Delivery Address")
-                    .font(.headline)
-            }
-
+        VStack(spacing: 0) {
             if addresses.isEmpty {
                 Button {
                     showAddAddress = true
                 } label: {
-                    HStack {
-                        Image(systemName: "plus.circle")
-                        Text("Add delivery address")
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .foregroundColor(.orange)
-                }
-            } else {
-                ForEach(addresses) { address in
-                    AddressRow(
-                        address: address,
-                        isSelected: selectedAddressId == address.id,
-                        onSelect: { selectedAddressId = address.id }
-                    )
-                }
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.tuckerOrange.opacity(0.15))
+                                .frame(width: 44, height: 44)
+                            Image(systemName: "plus")
+                                .font(.title3)
+                                .foregroundColor(.tuckerOrange)
+                        }
 
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Add Delivery Address")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.primary)
+                            Text("Please add an address to continue")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    .padding()
+                }
+            } else if let address = addresses.first(where: { $0.id == selectedAddressId }) ?? addresses.first {
                 Button {
-                    showAddAddress = true
+                    // Show address picker
                 } label: {
-                    Text("+ Add new address")
-                        .foregroundColor(.orange)
-                        .font(.subheadline)
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "location.fill")
+                            .font(.title3)
+                            .foregroundColor(.tuckerOrange)
+                            .frame(width: 24)
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(spacing: 8) {
+                                Text(address.name)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                Text(address.phone)
+                                    .foregroundColor(.gray)
+                                if let label = address.label {
+                                    Text(label)
+                                        .font(.caption2)
+                                        .foregroundColor(.tuckerOrange)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.tuckerOrange.opacity(0.1))
+                                        .cornerRadius(4)
+                                }
+                            }
+                            .font(.subheadline)
+
+                            Text("\(address.district) \(address.detail)")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                                .lineLimit(2)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    .padding()
+                }
+            }
+
+            // Decorative divider with triangles
+            HStack(spacing: 0) {
+                ForEach(0..<30, id: \.self) { index in
+                    Triangle()
+                        .fill(index % 2 == 0 ? Color.tuckerOrange : Color.blue)
+                        .frame(width: 14, height: 4)
                 }
             }
         }
-        .padding()
         .background(Color.white)
         .cornerRadius(12)
     }
 
-    private var orderItemsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "bag.fill")
-                    .foregroundColor(.orange)
-                Text("Order Items")
-                    .font(.headline)
-            }
+    private var deliveryTimeSection: some View {
+        HStack {
+            Image(systemName: "clock")
+                .foregroundColor(.tuckerOrange)
 
-            ForEach(cartManager.items) { item in
-                HStack(spacing: 12) {
-                    AsyncImage(url: URL(string: item.product.image ?? "")) { image in
-                        image.resizable().aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        Rectangle().fill(Color.gray.opacity(0.2))
-                    }
-                    .frame(width: 50, height: 50)
-                    .cornerRadius(8)
+            Text("Delivery Time")
+                .font(.subheadline)
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(item.product.name)
-                            .font(.subheadline)
-                        Text("¥\(Int(item.product.price))")
-                            .foregroundColor(.orange)
-                            .font(.caption)
-                    }
+            Spacer()
 
-                    Spacer()
-
-                    Text("x\(item.quantity)")
+            Menu {
+                Button("Now (ASAP)") { selectedDeliveryTime = "Now" }
+                Button("Schedule for later") { selectedDeliveryTime = "Scheduled" }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(selectedDeliveryTime == "Now" ? "As soon as possible" : "Scheduled")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                    Image(systemName: "chevron.down")
+                        .font(.caption2)
                         .foregroundColor(.gray)
                 }
             }
@@ -181,44 +238,162 @@ struct CheckoutView: View {
         .cornerRadius(12)
     }
 
-    private var remarkSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Order Notes")
-                .font(.headline)
+    private var orderItemsSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Store header
+            HStack(spacing: 8) {
+                Image(systemName: "storefront.fill")
+                    .foregroundColor(.tuckerOrange)
+                Text("Merchant Name")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                Spacer()
+            }
+            .padding()
+            .background(Color(.systemGray6).opacity(0.5))
 
-            TextField("Add any special instructions...", text: $remark, axis: .vertical)
-                .lineLimit(2...4)
+            // Items
+            ForEach(cartManager.items) { item in
+                HStack(spacing: 12) {
+                    AsyncImage(url: URL(string: item.product.image ?? "")) { image in
+                        image.resizable().aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Rectangle().fill(Color.gray.opacity(0.2))
+                    }
+                    .frame(width: 60, height: 60)
+                    .cornerRadius(8)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(item.product.name)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .lineLimit(2)
+
+                        HStack(alignment: .firstTextBaseline, spacing: 2) {
+                            Text("¥")
+                                .font(.caption)
+                            Text("\(Int(item.product.price))")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundColor(.red)
+                    }
+
+                    Spacer()
+
+                    Text("x\(item.quantity)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(4)
+                }
                 .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
+
+                if item.id != cartManager.items.last?.id {
+                    Divider()
+                        .padding(.leading, 84)
+                }
+            }
+
+            // Add more items
+            Divider()
+            Button {
+                dismiss()
+            } label: {
+                HStack {
+                    Image(systemName: "plus.circle")
+                        .foregroundColor(.tuckerOrange)
+                    Text("Add more items")
+                        .font(.subheadline)
+                        .foregroundColor(.tuckerOrange)
+                    Spacer()
+                }
+                .padding()
+            }
         }
-        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+    }
+
+    private var couponSection: some View {
+        Button {
+            showCouponSheet = true
+        } label: {
+            HStack {
+                Image(systemName: "ticket.fill")
+                    .foregroundColor(.red)
+
+                Text("Coupons")
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+
+                Spacer()
+
+                Text("Select coupon")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(12)
+        }
+    }
+
+    private var remarkSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Image(systemName: "pencil")
+                    .foregroundColor(.gray)
+                TextField("Add notes for the merchant...", text: $remark)
+                    .font(.subheadline)
+            }
+            .padding()
+
+            Divider()
+
+            // Tableware option
+            HStack {
+                Image(systemName: "fork.knife")
+                    .foregroundColor(.gray)
+                Text("Tableware")
+                    .font(.subheadline)
+                Spacer()
+                Text("As needed")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            .padding()
+        }
         .background(Color.white)
         .cornerRadius(12)
     }
 
     private var priceSummarySection: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text("Subtotal")
-                    .foregroundColor(.gray)
-                Spacer()
-                Text("¥\(String(format: "%.2f", cartManager.totalPrice))")
+        VStack(spacing: 12) {
+            // Price breakdown
+            VStack(spacing: 10) {
+                PriceRow(title: "Subtotal", value: cartManager.totalPrice)
+                PriceRow(title: "Delivery Fee", value: deliveryFee, originalValue: 8.0)
+                PriceRow(title: "Packaging Fee", value: packagingFee)
             }
-            HStack {
-                Text("Delivery Fee")
-                    .foregroundColor(.gray)
-                Spacer()
-                Text("¥5.00") // TODO: Get from merchant
-            }
+
             Divider()
+
+            // Savings
             HStack {
-                Text("Total")
-                    .fontWeight(.bold)
+                Image(systemName: "tag.fill")
+                    .foregroundColor(.red)
+                    .font(.caption)
+                Text("You saved ¥3.00 on this order")
+                    .font(.caption)
+                    .foregroundColor(.red)
                 Spacer()
-                Text("¥\(String(format: "%.2f", cartManager.totalPrice + 5))")
-                    .fontWeight(.bold)
-                    .foregroundColor(.orange)
             }
         }
         .padding()
@@ -227,40 +402,54 @@ struct CheckoutView: View {
     }
 
     private var bottomBar: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Total")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                Text("¥\(String(format: "%.2f", cartManager.totalPrice + 5))")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.orange)
+        HStack(spacing: 16) {
+            // Price section
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text("¥")
+                        .font(.subheadline)
+                    Text(String(format: "%.0f", cartManager.totalPrice + deliveryFee + packagingFee))
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
+                .foregroundColor(.primary)
+
+                Text("Saved ¥3.00")
+                    .font(.caption2)
+                    .foregroundColor(.tuckerOrange)
             }
 
             Spacer()
 
+            // Submit button
             Button {
                 Task { await submitOrder() }
             } label: {
                 if isSubmitting {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .frame(width: 140)
                 } else {
-                    Text("Place Order")
-                        .fontWeight(.medium)
+                    Text("Submit Order")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .frame(width: 140)
                 }
             }
             .foregroundColor(.white)
-            .padding(.horizontal, 32)
             .padding(.vertical, 14)
-            .background(selectedAddressId != nil ? Color.orange : Color.gray)
-            .cornerRadius(25)
+            .background(
+                selectedAddressId != nil
+                    ? LinearGradient(colors: [.tuckerOrange, .red], startPoint: .leading, endPoint: .trailing)
+                    : LinearGradient(colors: [.gray, .gray], startPoint: .leading, endPoint: .trailing)
+            )
+            .cornerRadius(22)
             .disabled(selectedAddressId == nil || isSubmitting)
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 12)
         .background(Color.white)
-        .shadow(color: .black.opacity(0.1), radius: 5, y: -2)
+        .shadow(color: .black.opacity(0.08), radius: 8, y: -4)
     }
 
     private func loadAddresses() async {
@@ -299,6 +488,45 @@ struct CheckoutView: View {
     }
 }
 
+// MARK: - Supporting Views
+
+struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+struct PriceRow: View {
+    let title: String
+    let value: Double
+    var originalValue: Double? = nil
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.subheadline)
+                .foregroundColor(.gray)
+
+            Spacer()
+
+            if let original = originalValue, original > value {
+                Text("¥\(String(format: "%.0f", original))")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .strikethrough()
+            }
+
+            Text("¥\(String(format: "%.2f", value))")
+                .font(.subheadline)
+        }
+    }
+}
+
 struct AddressRow: View {
     let address: Address
     let isSelected: Bool
@@ -308,7 +536,7 @@ struct AddressRow: View {
         Button(action: onSelect) {
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(isSelected ? .orange : .gray)
+                    .foregroundColor(isSelected ? .tuckerOrange : .gray)
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
@@ -333,11 +561,11 @@ struct AddressRow: View {
                 Spacer()
             }
             .padding()
-            .background(isSelected ? Color.orange.opacity(0.1) : Color(.systemGray6))
+            .background(isSelected ? Color.tuckerOrange.opacity(0.1) : Color(.systemGray6))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.orange : Color.clear, lineWidth: 1)
+                    .stroke(isSelected ? Color.tuckerOrange : Color.clear, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
